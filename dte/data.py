@@ -111,3 +111,46 @@ def load_sndlib_xml(path: str, capacity_policy: str, uniform_capacity_mbps: floa
 
     name = path.rsplit("/", 1)[-1].removesuffix(".xml")
     return Topology(name, tuple(node_ids), lonlat, tuple(links), caps, D, origin)
+
+
+def load_topohub_json(path: str, name: str, uniform_capacity_mbps: float, demand_model: str) -> Topology:
+    """Topology Zoo network as packaged by TopoHub (node-link JSON with node "pos" = [lon, lat]).
+
+    Topology Zoo provides real topology and geography but NO capacities and NO traffic, so two
+    explicit modelling assumptions are required (both must be stated in the paper):
+      * every link gets `uniform_capacity_mbps`;
+      * demand_model "gravity_degree": D[s,t] = M_s * M_t / sum(M) for s != t with node mass
+        M_i = degree(i) (= total attached capacity under uniform capacities). The absolute level
+        is irrelevant because demand is later rescaled to a target optimal MLU.
+    """
+    import json
+    d = json.load(open(path))
+    if d.get("directed") or d.get("multigraph"):
+        raise ValueError(f"{path}: directed/multigraph JSON not supported")
+    ids = [n["id"] for n in d["nodes"]]
+    idx = {v: k for k, v in enumerate(ids)}
+    lonlat = np.asarray([n["pos"] for n in d["nodes"]], dtype=float)
+    assert lonlat.shape == (len(ids), 2)
+    assert np.all(np.abs(lonlat[:, 0]) <= 180) and np.all(np.abs(lonlat[:, 1]) <= 90), "bad coordinates"
+    links, seen = [], set()
+    for e in d["edges"]:
+        i, j = idx[e["source"]], idx[e["target"]]
+        if i == j:
+            raise ValueError(f"{path}: self-loop")
+        key = (min(i, j), max(i, j))
+        if key in seen:
+            raise ValueError(f"{path}: duplicate link {key}")
+        seen.add(key)
+        links.append(key)
+    caps = np.full(len(links), float(uniform_capacity_mbps))
+    deg = np.zeros(len(ids))
+    for i, j in links:
+        deg[i] += 1; deg[j] += 1
+    if demand_model == "gravity_degree":
+        D = np.outer(deg, deg) / deg.sum()
+        np.fill_diagonal(D, 0.0)
+    else:
+        raise ValueError(f"unknown demand_model {demand_model!r}")
+    names = tuple(n.get("name", str(n["id"])) for n in d["nodes"])
+    return Topology(name, names, lonlat, tuple(links), caps, D,
+                    f"TopoHub/Topology Zoo {d['graph'].get('name')}; uniform capacity; {demand_model} demand")

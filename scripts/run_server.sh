@@ -12,7 +12,7 @@ if [ ! -d .venv ]; then
 fi
 .venv/bin/python -m pytest -q tests          # validation tests must pass before any experiment
 .venv/bin/python -m dte.fetch --config "$CONFIG"
-.venv/bin/python -m dte.run --config "$CONFIG" --workers "$WORKERS"
+.venv/bin/python -m dte.run --config "$CONFIG" --workers "$WORKERS" --chunk 50
 RUN_DIR=$(ls -dt results/*/ | head -1)
 .venv/bin/python -m dte.aggregate "$RUN_DIR" --bootstrap 2000 --seed 1 > "${RUN_DIR}summary.txt"
 echo "finished: ${RUN_DIR}"

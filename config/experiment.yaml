@@ -10,6 +10,7 @@ data_dir: data/raw               # fetch.py downloads here; files are checked ag
 
 topologies:
   - name: abilene
+    format: sndlib_xml
     file: sndlib/abilene.xml
     # Real Internet2/Abilene topology with installed capacities (OC-192 = 9920 Mbit/s, one OC-48 link)
     # and the Yin Zhang demand matrix as packaged by SNDlib (scaled peak matrix, 2004).

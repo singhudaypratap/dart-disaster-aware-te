@@ -14,7 +14,7 @@ STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 for c in "$@"; do
   name=$(basename "$c" .yaml)
   log="logs/${name}_${STAMP}.log"
-  nohup bash -c ".venv/bin/python -m dte.run --config '$c' --workers $PER && \
+  nohup bash -c ".venv/bin/python -m dte.run --config '$c' --workers $PER --chunk 50 && \
     RUN_DIR=\$(grep -o 'results/[^ ]*' '$log' | head -1) && \
     .venv/bin/python -m dte.aggregate \"\$RUN_DIR\" --bootstrap 2000 --seed 1 > \"\$RUN_DIR/summary.txt\" && \
     echo FINISHED \$RUN_DIR" > "$log" 2>&1 &

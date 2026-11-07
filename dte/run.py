@@ -26,30 +26,44 @@ from joblib import Parallel, delayed
 
 from . import failures as F
 from . import te
-from .data import Topology, load_sndlib_xml
+from .data import Topology, load_sndlib_xml, load_topohub_json
 
 
 # ---------------------------------------------------------------- setup
 def load_topologies(cfg) -> list[Topology]:
     out = []
     for t in cfg["topologies"]:
-        topo = load_sndlib_xml(os.path.join(cfg["data_dir"], t["file"]), t["capacity_policy"],
-                               t["uniform_capacity_mbps"], t["assume_unit_if_missing"])
+        path = os.path.join(cfg["data_dir"], t["file"])
+        if t["format"] == "sndlib_xml":
+            topo = load_sndlib_xml(path, t["capacity_policy"], t["uniform_capacity_mbps"], t["assume_unit_if_missing"])
+        elif t["format"] == "topohub_json":
+            if t["capacity_policy"] != "uniform":
+                raise ValueError(f"{t['name']}: Topology Zoo has no capacities; capacity_policy must be 'uniform'")
+            topo = load_topohub_json(path, t["name"], t["uniform_capacity_mbps"], t["demand_model"])
+        else:
+            raise ValueError(f"unknown topology format {t['format']!r}")
         if topo.name != t["name"]:
             raise ValueError(f"config name {t['name']!r} != file name {topo.name!r}")
         out.append(topo)
     return out
 
 
-def build_scenarios(cfg, topo: Topology, rng: np.random.Generator) -> list[F.Scenario]:
+def load_events(cfg):
+    """Parse every ShakeMap grid and the HURDAT2 file once (shared by all topologies)."""
+    sc_cfg = cfg["scenarios"]
+    grids = [F.parse_shakemap_grid(open(os.path.join(cfg["data_dir"], f"events/shakemap_{ev}.xml")).read())
+             for ev in sc_cfg["shakemap"]["events"]]
+    storms = F.parse_hurdat2(open(os.path.join(cfg["data_dir"], sc_cfg["hurricane"]["hurdat2_file"])).read())
+    return grids, storms
+
+
+def build_scenarios(cfg, topo: Topology, rng: np.random.Generator, grids, storms) -> list[F.Scenario]:
     sc_cfg, step = cfg["scenarios"], cfg["geometry"]["link_step_km"]
     out = [F.no_failure(topo)] if sc_cfg["include_no_failure"] else []
-    for ev in sc_cfg["shakemap"]["events"]:
-        grid = F.parse_shakemap_grid(open(os.path.join(cfg["data_dir"], f"events/shakemap_{ev}.xml")).read())
+    for grid in grids:
         for thr in sc_cfg["shakemap"]["mmi_thresholds"]:
             out.append(F.shakemap_scenario(topo, grid, thr, step))
     hc = sc_cfg["hurricane"]
-    storms = F.parse_hurdat2(open(os.path.join(cfg["data_dir"], hc["hurdat2_file"])).read())
     for sid in hc["storms"]:
         for kt in hc["wind_kt"]:
             out.append(F.hurricane_scenario(topo, sid, storms[sid], kt, hc["interp_hours"], step))
@@ -81,6 +95,13 @@ def scale_demand(topo: Topology, target_mlu: float) -> tuple[np.ndarray, float]:
 
 
 # ---------------------------------------------------------------- one job
+def run_chunk(topo, D, target, alpha, paths, base_splits, scenarios, methods, ospf_rule):
+    rows = []
+    for sc in scenarios:
+        rows += run_job(topo, D, target, alpha, paths, base_splits, sc, methods, ospf_rule)
+    return rows
+
+
 def run_job(topo, D, target, alpha, paths, base_splits, sc: F.Scenario, methods, ospf_rule):
     dead_arc, dead_node = sc.dead_arc(topo), sc.dead_node
     total = float(D.sum())
@@ -148,6 +169,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
     ap.add_argument("--workers", type=int, required=True, help="parallel processes (-1 = all cores)")
+    ap.add_argument("--chunk", type=int, required=True, help="scenarios per parallel task (e.g. 50)")
     args = ap.parse_args()
     cfg_text = open(args.config).read()
     cfg = yaml.safe_load(cfg_text)
@@ -160,8 +182,9 @@ def main():
 
     seeds = np.random.SeedSequence(cfg["run"]["seed"]).spawn(len(cfg["topologies"]))
     jobs, sc_rows = [], []
+    grids, storms = load_events(cfg)
     for topo, ss in zip(load_topologies(cfg), seeds):
-        scen = build_scenarios(cfg, topo, np.random.default_rng(ss))
+        scen = build_scenarios(cfg, topo, np.random.default_rng(ss), grids, storms)
         for s in scen:
             sc_rows.append({"topology": topo.name, "scenario_id": s.scenario_id, "kind": s.kind,
                             "n_dead_nodes": int(s.dead_node.sum()), "n_dead_links": int(s.dead_link.sum()),
@@ -176,22 +199,29 @@ def main():
             D, alpha = scale_demand(topo, target)
             arcs, _, _ = topo.arcs()
             _, base_splits = te.path_lp(topo, D, paths, np.zeros(len(arcs), bool), np.zeros(topo.n, bool))
-            jobs += [(topo, D, target, alpha, paths, base_splits, s) for s in scen]
+            jobs += [(topo, D, target, alpha, paths, base_splits, scen[i:i + args.chunk])
+                     for i in range(0, len(scen), args.chunk)]
     with open(os.path.join(out_dir, "scenarios.jsonl"), "w") as f:
         for r in sc_rows:
             f.write(json.dumps(r) + "\n")
-    print(f"{len(jobs)} jobs -> {out_dir}", flush=True)
+    n_sc = sum(len(j[-1]) for j in jobs)
+    print(f"{n_sc} scenario-evaluations in {len(jobs)} tasks -> {out_dir}", flush=True)
 
     t0 = time.time()
-    results = Parallel(n_jobs=args.workers, verbose=5)(
-        delayed(run_job)(*j, cfg["methods"], cfg["ospf"]["weight_rule"]) for j in jobs)
+    # results are streamed to disk as tasks finish (row order is not meaningful; rows are keyed)
+    gen = Parallel(n_jobs=args.workers, verbose=5, return_as="generator_unordered")(
+        delayed(run_chunk)(*j, cfg["methods"], cfg["ospf"]["weight_rule"]) for j in jobs)
+    n_rows = 0
     with open(os.path.join(out_dir, "results.jsonl"), "w") as f:
-        for rows in results:
+        for rows in gen:
             for r in rows:
                 f.write(json.dumps(r) + "\n")
+            n_rows += len(rows)
+    assert n_rows == n_sc * len(cfg["methods"]), (n_rows, n_sc)
     manifest["finished_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     manifest["wall_s"] = time.time() - t0
-    manifest["n_jobs"] = len(jobs)
+    manifest["n_scenario_evaluations"] = n_sc
+    manifest["n_rows"] = n_rows
     with open(os.path.join(out_dir, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=1, default=str)
     print(f"done in {manifest['wall_s']:.0f}s")

@@ -74,10 +74,15 @@ def _servable_pairs(topo: Topology, D: np.ndarray, dead_arc: np.ndarray, dead_no
     G = nx.DiGraph()
     G.add_nodes_from(i for i in range(topo.n) if not dead_node[i])
     G.add_edges_from(a for a, d in zip(arcs, dead_arc) if not d)
+    # Arcs come in pairs (2*li, 2*li+1) per link and fail together, so reachability is symmetric
+    # and s reaches t exactly when both lie in the same strongly connected component.
+    comp = {v: ci for ci, nodes in enumerate(nx.strongly_connected_components(G)) for v in nodes}
+    assert all(dead_arc[2 * li] == dead_arc[2 * li + 1] for li in range(len(dead_arc) // 2)), \
+        "asymmetric arc failure: SCC shortcut invalid"
     servable, lost = [], 0.0
     for s, t in zip(*np.nonzero(D)):
         s, t = int(s), int(t)
-        if dead_node[s] or dead_node[t] or not nx.has_path(G, s, t):
+        if dead_node[s] or dead_node[t] or comp[s] != comp[t]:
             lost += D[s, t]
         else:
             servable.append((s, t))
@@ -92,8 +97,12 @@ def _outcome(load, cap, dead_arc, carried, lost_unserv, lost_routing) -> Outcome
     return Outcome(mlu, float(carried), float(lost_unserv), float(lost_routing), load)
 
 
-def _solve_lp(c, A_ub, b_ub, A_eq, b_eq, what: str):
-    res = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=(0, None), method="highs")
+def _solve_lp(c, A_ub, b_ub, A_eq, b_eq, what: str, method: str):
+    """method: "highs" (HiGHS default, simplex: deterministic vertex solution) or "highs-ipm".
+    Only the edge LP uses IPM: there only the optimal VALUE is used, which is unique. The path LP
+    must stay on simplex because its (possibly non-unique) optimal split ratios become the
+    pre-failure plan that the no_recovery / local_rescale baselines start from."""
+    res = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=(0, None), method=method)
     if res.status != 0:
         raise RuntimeError(f"{what}: LP failed: status={res.status} {res.message}")
     return res
@@ -107,32 +116,30 @@ def optimal_mlu_edge_lp(topo: Topology, D: np.ndarray, dead_arc: np.ndarray, dea
     servable, lost_unserv = _servable_pairs(topo, D, dead_arc, dead_node)
     alive_arcs = [a for a, d in enumerate(dead_arc) if not d]
     dests = sorted({t for _, t in servable})
+    if not dests:                                      # nothing routable: no load, MLU 0 by definition
+        return _outcome(np.zeros(len(arcs)), cap, dead_arc, 0.0, lost_unserv, 0.0)
     nA, nT = len(alive_arcs), len(dests)
-    nv = nA * nT + 1                                   # flows f[t, a] then U
+    nv = nA * nT + 1                                   # flows f[t, a] (block per destination), then U
     U = nv - 1
-    rows, cols, vals, beq = [], [], [], []
-    r = 0
-    for ti, t in enumerate(dests):                     # conservation for every node v != t
-        for v in range(topo.n):
-            if v == t or dead_node[v]:
-                continue
-            for ai, a in enumerate(alive_arcs):
-                u, w = arcs[a]
-                if u == v:
-                    rows.append(r); cols.append(ti * nA + ai); vals.append(1.0)
-                elif w == v:
-                    rows.append(r); cols.append(ti * nA + ai); vals.append(-1.0)
-            beq.append(D[v, t] if (v, t) in set(servable) else 0.0)
-            r += 1
-    A_eq = sp.csr_matrix((vals, (rows, cols)), shape=(r, nv))
-    rows, cols, vals = [], [], []
-    for ai, a in enumerate(alive_arcs):                # sum_t f[t,a] - U*cap_a <= 0
-        for ti in range(nT):
-            rows.append(ai); cols.append(ti * nA + ai); vals.append(1.0)
-        rows.append(ai); cols.append(U); vals.append(-cap[a])
-    A_ub = sp.csr_matrix((vals, (rows, cols)), shape=(nA, nv))
+    # node-arc incidence of the alive graph: +1 at tail, -1 at head
+    tails = np.array([arcs[a][0] for a in alive_arcs]); heads = np.array([arcs[a][1] for a in alive_arcs])
+    B = sp.csr_matrix((np.r_[np.ones(nA), -np.ones(nA)], (np.r_[tails, heads], np.r_[np.arange(nA), np.arange(nA)])),
+                      shape=(topo.n, nA))
+    Dserv = np.zeros_like(D)
+    for s, t in servable:
+        Dserv[s, t] = D[s, t]
+    blocks, beq = [], []
+    for t in dests:                                    # conservation at every live node v != t
+        keep = np.array([v for v in range(topo.n) if v != t and not dead_node[v]])
+        blocks.append(B[keep])
+        beq.append(Dserv[keep, t])
+    A_eq = sp.hstack([sp.block_diag(blocks, format="csr"), sp.csr_matrix((sum(b.shape[0] for b in blocks), 1))],
+                     format="csr")
+    # sum_t f[t,a] - U*cap_a <= 0
+    A_ub = sp.hstack([sp.hstack([sp.identity(nA, format="csr")] * nT), sp.csr_matrix(-cap[alive_arcs][:, None])],
+                     format="csr")
     c = np.zeros(nv); c[U] = 1.0
-    res = _solve_lp(c, A_ub, np.zeros(nA), A_eq, np.asarray(beq), "edge LP")
+    res = _solve_lp(c, A_ub, np.zeros(nA), A_eq, np.concatenate(beq), "edge LP", "highs-ipm")
     load = np.zeros(len(arcs))
     f = res.x[:-1].reshape(nT, nA).sum(axis=0)
     load[alive_arcs] = f
@@ -169,7 +176,7 @@ def path_lp(topo: Topology, D: np.ndarray, paths, dead_arc: np.ndarray, dead_nod
     A_eq = sp.csr_matrix(([1.0] * len(var), ([pair_row[p] for p, _ in var], list(range(len(var))))),
                          shape=(len(routed), nv))
     c = np.zeros(nv); c[U] = 1.0
-    res = _solve_lp(c, A_ub, np.zeros(len(arcs)), A_eq, np.ones(len(routed)), "path LP")
+    res = _solve_lp(c, A_ub, np.zeros(len(arcs)), A_eq, np.ones(len(routed)), "path LP", "highs")
     splits = {p: np.zeros(len(paths[p])) for p in routed}
     for vi, (p, pi) in enumerate(var):
         splits[p][pi] = res.x[vi]

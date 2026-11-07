@@ -94,7 +94,11 @@ def _bearing_deg(p, q):
 
 def _scenario_from_inside(topo, inside_fn, link_step_km, sid, kind, meta) -> Scenario:
     dead_node = inside_fn(topo.lonlat)
-    dead_link = np.array([inside_fn(p).any() for p in link_sample_points(topo, link_step_km)])
+    pts = link_sample_points(topo, link_step_km)
+    hit = inside_fn(np.concatenate(pts))                       # one vectorised call for all links
+    owner = np.repeat(np.arange(len(pts)), [len(p) for p in pts])
+    dead_link = np.zeros(len(pts), bool)
+    dead_link[np.unique(owner[hit])] = True
     meta = dict(meta, n_dead_nodes=int(dead_node.sum()), n_dead_links=int(dead_link.sum()))
     return Scenario(sid, kind, dead_node, dead_link, meta)
 
