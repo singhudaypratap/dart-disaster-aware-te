@@ -1,0 +1,64 @@
+# Experiment configuration. Every parameter that can change a scientific conclusion is set here
+# explicitly; the code has no defaults for them. Copy this file to make a variant, never edit a
+# file that already produced results (the runner stores a copy of the config next to each result).
+
+run:
+  name: phase1_paths_k4
+  seed: 20261107                 # master seed; per-topology RNGs are derived with numpy SeedSequence
+
+data_dir: data/raw               # fetch.py downloads here; files are checked against sha256 below
+
+topologies:
+  - name: abilene
+    file: sndlib/abilene.xml
+    # Real Internet2/Abilene topology with installed capacities (OC-192 = 9920 Mbit/s, one OC-48 link)
+    # and the Yin Zhang demand matrix as packaged by SNDlib (scaled peak matrix, 2004).
+    url: https://raw.githubusercontent.com/NIKHILis-Coder/TRAFFIC-CONGESTION-PREDICTION/bfeb0c7a4f2162e29c50aaa851066f0faf2134e6/data/raw/sndlib/abilene.xml
+    sha256: a5793e17bb72ff13fed5e7d80e9a46c6af2041c4cc2e6381906bd06da8936fe3
+    capacity_policy: preinstalled
+    uniform_capacity_mbps: null
+    assume_unit_if_missing: null
+
+paths:
+  k: 4                           # candidate paths per demand pair for path-based TE
+  metric: hops                   # "hops" or "km"
+
+demand:
+  # Demand is rescaled so that the optimal no-failure MLU equals each target (min-MLU is linear
+  # in demand, so this is exact). Sweep = sensitivity to network load.
+  target_optimal_mlu: [0.4, 0.6, 0.8]
+
+ospf:
+  weight_rule: invcap            # w = max_capacity / capacity
+
+geometry:
+  link_step_km: 10.0             # sampling step along links for footprint intersection
+
+scenarios:
+  shakemap:
+    # Real USGS events (ids verified against the USGS ComCat API). Footprint = MMI >= threshold.
+    events: [ci3144585, nc216859, ci38457511, uw10530748, se609212, nc72282711]
+    mmi_thresholds: [7, 8]       # VII "very strong", VIII "severe" (USGS MMI scale) -- sensitivity pair
+  hurricane:
+    hurdat2_file: events/hurdat2-1851-2025-092326.txt
+    hurdat2_url: https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-092326.txt
+    storms: [AL122005, AL182005, AL092008, AL182012, AL092017, AL112017, AL142018,
+             AL132020, AL092021, AL092022, AL022024, AL092024]
+    wind_kt: [34, 64]            # tropical-storm-force and hurricane-force wind radii
+    interp_hours: 1.0
+  random_disk:
+    radii_km: [50, 100, 200, 400]
+    n_per_radius: 200
+    margin_deg: 1.0
+    require_failure: true        # resample disks that fail nothing (they carry no information)
+    max_tries: 200000
+  link_cuts:
+    k: [1, 2, 3]                 # adversary removes exactly k links; enumerated exhaustively
+    max_scenarios_per_k: 20000   # crash rather than silently subsample if exceeded
+  include_no_failure: true
+  drop_scenarios_without_failure: true   # real events that miss the topology are recorded in the
+                                         # manifest but not evaluated
+
+methods: [no_recovery, local_rescale, ospf_ecmp, te_resolve_kpaths, optimal]
+
+output_dir: results

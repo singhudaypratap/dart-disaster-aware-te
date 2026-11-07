@@ -20,8 +20,17 @@ The script creates a virtualenv with pinned versions, runs the validation tests,
 checksums every input, runs all jobs in parallel and writes `results/<run>/summary.csv`.
 Phase 1 on Abilene: 4,182 jobs x 5 methods, about 20 s on 4 cores.
 
-To run several configurations in parallel, copy the config, change `run.name` and the parameter
-under study, and start one `run_server.sh` per config (each writes its own results directory).
+### Background runs with nohup, several configs in parallel
+
+```bash
+bash scripts/setup_server.sh config/paths_k4.yaml config/paths_k8.yaml        # once, and after each git pull
+bash scripts/launch_nohup.sh 32 config/paths_k4.yaml config/paths_k8.yaml     # 32 workers split across configs
+tail -f logs/*.log                                                            # watch; safe to log out
+```
+
+Each config needs a distinct `run.name`; each writes its own `results/<run.name>_<time>/` and
+`logs/<config>_<time>.log`, which ends with `FINISHED <run dir>` on success. PIDs are in
+`logs/pids_<time>.txt` for stopping runs.
 
 ## What is real and what is assumed
 
