@@ -60,3 +60,7 @@ Verdicts: **S** supported, **P** partly supported (sentence rewritten to match t
 - Added (published, peer-reviewed, abstract read): trinet99 (Earthquake Spectra 1999, doi:10.1193/1.1586057; correct ShakeMap source), alenazi23 (Mathematics 2023, doi:10.3390/math11204250; closest prior use of real hurricanes on real topologies), jimenez23 (IEEE Access 2023, doi:10.1109/ACCESS.2023.3255794; seismic reliability with fragility curves).
 - Novelty wording updated: the paper no longer implies that using real hurricanes on real topologies is new; it states that real footprints are used to *choose TE tunnels* and tested on later events.
 - References: 46 → 47. No result number or claim about our own results was changed.
+
+
+## Full-text check (authors, 2026-11-08)
+- alenazi23: full text read (Mathematics 11(20):4250). Confirmed: four U.S. providers (AT&T, Internet2, Level3, Sprint) with physical fibre routes from a KMI Corporation dataset; Hurricanes Ivan (2004) and Katrina (2005) from HURDAT; nodes inside a buffer radius around the track fail; metrics node/link failure, largest component size, flow robustness; no traffic engineering. Related-work sentence, Table 1 row and limitation (i) updated accordingly.
