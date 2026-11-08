@@ -1,0 +1,13 @@
+split                test                          train                    
+family         earthquake      hurricane      earthquake      hurricane     
+threshold            mmi7 mmi8      34kt 64kt       mmi7 mmi8      34kt 64kt
+topology                                                                    
+attmpls                 0    0        37   12          4    3        44   13
+btnorthamerica          1    0        41   14          1    1        46   14
+cernet                  0    0        42   11          0    0       101   24
+garr201201              0    0         1    0          1    0         0    0
+geant2012               2    1        12    0          6    3        11    0
+grnet                   2    0         0    0          3    3         0    0
+iij                     2    0        71   18          7    2       133   28
+
+storm-threshold combinations skipped for missing radii: 420

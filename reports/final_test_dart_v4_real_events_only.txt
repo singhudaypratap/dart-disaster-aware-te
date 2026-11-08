@@ -1,0 +1,25 @@
+Post-hoc breakdown (NOT part of the pre-registered criterion): real held-out events only
+
+attmpls: n=15
+rule  dart_v4_adv_k4  dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+mean          0.0021      0.0021            0.0034          0.0042       0.0097       0.0048
+max           0.0157      0.0157            0.0360          0.0222       0.0676       0.0375
+  dart_v4 vs ksp_hops_k4: better 3 worse 6 tie 6 raw p=0.858
+  dart_v4 vs edge_disjoint_k4: better 2 worse 7 tie 6 raw p=0.437
+  dart_v4 vs geo_diverse_k4: better 3 worse 6 tie 6 raw p=0.858
+
+btnorthamerica: n=17
+rule  dart_v4_adv_k4  dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+mean          0.0017      0.0018            0.0044          0.0019       0.0120       0.0042
+max           0.0204      0.0219            0.0257          0.0152       0.0642       0.0278
+  dart_v4 vs ksp_hops_k4: better 8 worse 1 tie 8 raw p=0.0107
+  dart_v4 vs edge_disjoint_k4: better 7 worse 3 tie 7 raw p=0.201
+  dart_v4 vs geo_diverse_k4: better 9 worse 6 tie 2 raw p=0.775
+
+geant2012: n=3
+rule  dart_v4_adv_k4  dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+mean             0.0         0.0               0.0             0.0          0.0          0.0
+max              0.0         0.0               0.0             0.0          0.0          0.0
+  dart_v4 vs ksp_hops_k4: better 0 worse 0 tie 3 raw p=1
+  dart_v4 vs edge_disjoint_k4: better 2 worse 0 tie 1 raw p=0.5
+  dart_v4 vs geo_diverse_k4: better 0 worse 0 tie 3 raw p=1

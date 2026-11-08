@@ -1,0 +1,6 @@
+data/raw/
+results/
+__pycache__/
+*.pyc
+.venv/
+logs/

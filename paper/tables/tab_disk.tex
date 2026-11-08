@@ -1,0 +1,20 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+Network & Rule & Mean (\%) & CVaR$_{0.95}$ (\%) & Worst (\%) & Mean diff. (pp) & $p_{\mathrm{Holm}}$ & $r_{\mathrm{rb}}$ \\
+\midrule
+\multirow{4}{*}{AttMpls ($n=800$)} & Shortest paths & 2.08 & 14.05 & 29.34 & -1.60 & $<10^{-15}$ & 0.99 \\
+ & Geo-diverse & 0.85 & 7.38 & 19.72 & -0.37 & $<10^{-15}$ & 0.75 \\
+ & Edge-disjoint & 0.94 & 9.74 & 26.85 & -0.46 & $<10^{-15}$ & 0.95 \\
+ & DART & 0.48 & 5.89 & 23.21 & -- & -- & -- \\
+\midrule
+\multirow{4}{*}{BtNorthAmerica ($n=800$)} & Shortest paths & 2.14 & 15.16 & 30.64 & -1.66 & $<10^{-15}$ & 1.00 \\
+ & Geo-diverse & 0.92 & 11.02 & 26.30 & -0.44 & $<10^{-15}$ & 0.71 \\
+ & Edge-disjoint & 1.02 & 11.05 & 28.32 & -0.54 & $<10^{-15}$ & 0.97 \\
+ & DART & 0.48 & 7.61 & 25.25 & -- & -- & -- \\
+\midrule
+\multirow{4}{*}{G\'EANT ($n=800$)} & Shortest paths & 1.32 & 15.57 & 34.98 & -0.99 & $<10^{-15}$ & 1.00 \\
+ & Geo-diverse & 0.43 & 7.75 & 30.67 & -0.11 & $1.1\times10^{-11}$ & 0.62 \\
+ & Edge-disjoint & 0.74 & 12.07 & 29.55 & -0.42 & $<10^{-15}$ & 0.97 \\
+ & DART & 0.32 & 6.00 & 25.52 & -- & -- & -- \\
+\bottomrule
+\end{tabular}

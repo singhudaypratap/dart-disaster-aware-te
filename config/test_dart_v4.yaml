@@ -1,0 +1,138 @@
+# FINAL ONE-SHOT TEST of the frozen DART v4 (dte/pathsel.py:select_dart_v4).
+# Written and committed BEFORE this test was run (2026-11-08). The three topologies below were
+# never used during pilot or development (development used Abilene + Bellsouth only).
+#
+# PRE-REGISTERED CRITERION ("final_v4"), evaluated per topology on held-out NATURAL test scenarios
+# (2018-2024 hurricanes, 2019-2023 earthquakes, test-seed random disks):
+#   (1) CVaR95 of routable loss (mean of the worst 5% scenarios) of dart_v4_k4 is lower than that
+#       of every classical k=4 rule (ksp_hops_k4, edge_disjoint_k4, geo_diverse_k4);
+#   (2) mean routable loss of dart_v4_k4 is lower than every classical k=4 rule, and the paired
+#       two-sided Wilcoxon signed-rank test vs EACH classical rule is significant at 0.05 after
+#       Holm correction over all 9 comparisons, with a negative mean difference;
+#   (3) no-failure MLU of dart_v4_k4 <= 1.05 x that of ksp_hops_k4.
+# PASS = all three topologies pass. PARTIAL = two pass. Otherwise FAIL. Reported as-is.
+# Change vs the pilot criterion (disclosed): the single-worst-scenario condition was replaced by
+# CVaR95 during development because a single scenario is statistically fragile; the worst case
+# is still reported. Link-cut results (k=1,2) are secondary and not part of the criterion.
+run:
+  name: test_dart_v4
+  seed: 20261109
+data_dir: data/raw
+topologies:
+- name: attmpls
+  format: topohub_json
+  file: topozoo/AttMpls.json
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: btnorthamerica
+  format: topohub_json
+  file: topozoo/BtNorthAmerica.json
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: geant2012
+  format: topohub_json
+  file: topozoo/Geant2012.json
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+judged_rule: dart_v4_k4
+criterion: final_v4
+extra_rules:
+- dart_v4_k4
+- dart_v4_adv_k4
+evaluate_rules:
+- ksp_hops_k4
+- edge_disjoint_k4
+- geo_diverse_k4
+- dart_v4_k4
+- dart_v4_adv_k4
+- ksp_hops_k8
+target_optimal_mlu: 0.6
+k: 4
+k_reference: 8
+candidates:
+  n_candidates: 32
+  max_stretch_km: 3.0
+geo_sep_km: 50.0
+link_step_km: 10.0
+hurricanes:
+  hurdat2_file: events/hurdat2-1851-2025-092326.txt
+  wind_kt:
+  - 34
+  - 64
+  interp_hours: 1.0
+  train:
+  - AL032004
+  - AL062004
+  - AL092004
+  - AL112004
+  - AL042005
+  - AL122005
+  - AL182005
+  - AL252005
+  - AL092008
+  - AL182012
+  - AL092017
+  - AL112017
+  test:
+  - AL062018
+  - AL142018
+  - AL132020
+  - AL092021
+  - AL092022
+  - AL102023
+  - AL022024
+  - AL092024
+  - AL142024
+earthquakes:
+  mmi_thresholds:
+  - 7
+  - 8
+  train:
+  - ci3144585
+  - nc216859
+  - uw10530748
+  - se609212
+  - nc72282711
+  - usp000gvtu
+  - us10006g7d
+  - us1000731j
+  - usp0009d4z
+  - usp0009e46
+  test:
+  - ci38457511
+  - us6000jllz
+  - us6000d3zh
+  - us70006d0m
+  - us7000c7y0
+disks:
+  radii_km:
+  - 50
+  - 100
+  - 200
+  - 400
+  n_per_radius_train: 200
+  n_per_radius_test: 200
+  margin_deg: 1.0
+  max_tries: 200000
+cuts:
+  train_k:
+  - 1
+  - 2
+  test_k:
+    attmpls:
+    - 1
+    - 2
+    btnorthamerica:
+    - 1
+    - 2
+    geant2012:
+    - 1
+    - 2
+family_weights:
+  hurricane: 1.0
+  earthquake: 1.0
+  disk: 1.0
+  cut: 1.0

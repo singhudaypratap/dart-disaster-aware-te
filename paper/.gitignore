@@ -1,0 +1,8 @@
+*.aux
+*.log
+*.out
+*.blg
+*.spl
+build.log
+bib.log
+supp.log

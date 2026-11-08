@@ -1,0 +1,6 @@
+Highlights
+- Real cyclone and earthquake footprints are mapped onto seven real backbone networks
+- Backup tunnels stay link-disjoint and change only where hazard records justify it
+- On 211 real 2018-2025 events the rule lost 0.16% of traffic vs 0.30% (edge-disjoint)
+- Most loss after cyclones comes from isolated endpoints that no routing can recover
+- Both held-out tests passed criteria that were committed before the tests were run
