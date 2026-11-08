@@ -119,6 +119,13 @@ def main():
                 rules[f"{v}_k4"] = fn(topo, k, cands, *stack(topo, nat), family_weights(nat, fam, cfg["family_weights"]))
             if f"{v}_adv_k4" in cfg["extra_rules"]:
                 rules[f"{v}_adv_k4"] = fn(topo, k, cands, *stack(topo, adv), family_weights(adv, fam, cfg["family_weights"]))
+        ed = rules["edge_disjoint_k4"]
+        if "dart_v4_k4" in cfg["extra_rules"]:
+            rules["dart_v4_k4"] = pathsel.select_dart_v4(topo, k, cands, *stack(topo, nat),
+                                                         family_weights(nat, fam, cfg["family_weights"]), ed)
+        if "dart_v4_adv_k4" in cfg["extra_rules"]:
+            rules["dart_v4_adv_k4"] = pathsel.select_dart_v4(topo, k, cands, *stack(topo, adv),
+                                                             family_weights(adv, fam, cfg["family_weights"]), ed)
         if "dart_v2_adv_k4" in cfg["extra_rules"]:
             rules["dart_v2_adv_k4"] = pathsel.select_dart_v2(topo, k, cands, *stack(topo, adv),
                                                              family_weights(adv, fam, cfg["family_weights"]))

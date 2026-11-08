@@ -215,3 +215,35 @@ def select_dart_v3(topo, k, cands, train_dead_arc, train_dead_node, train_weight
             covered |= alive[:, c]
         out[(s, t)] = [C[c] for c in chosen]
     return out
+
+
+def select_dart_v4(topo, k, cands, train_dead_arc, train_dead_node, train_weight, ed_paths):
+    """DART v4 (development version): start from the edge_disjoint rule's k paths (`ed_paths`)
+    and replace its LAST path (or the k-th slot, after the disjoint backbone) only when a
+    candidate covers strictly more weighted TRAINING failure scenarios, i.e. when the real
+    hazard history shows a measurable benefit; otherwise the classical choice is kept.
+    Ties among improving candidates: fewest links shared with the kept paths, then hops."""
+    _, _, link_of_arc = topo.arcs()
+    out = {}
+    for (s, t), C in cands.items():
+        base = list(ed_paths[(s, t)])
+        if len(base) < 2:
+            out[(s, t)] = base
+            continue
+        keep, last = base[:-1], base[-1]
+        pool = [p for p in list(C) + [last] if p not in keep]
+        pool = list({tuple(p): p for p in pool}.values())        # dedupe, keep order
+        rel = ~(train_dead_node[:, s] | train_dead_node[:, t])
+        w = train_weight * rel
+        survive = lambda p: ~train_dead_arc[:, p].any(axis=1)
+        covered = np.any([survive(p) for p in keep], axis=0)
+        gain = lambda p: float(((survive(p) & ~covered) * w).sum())
+        g_last = gain(last)
+        used = {link_of_arc[a] for p in keep for a in p}
+        better = [p for p in pool if gain(p) > g_last + 1e-12]
+        if better:
+            best = min(better, key=lambda p: (-gain(p), len({link_of_arc[a] for a in p} & used), len(p)))
+            out[(s, t)] = keep + [best]
+        else:
+            out[(s, t)] = base
+    return out
