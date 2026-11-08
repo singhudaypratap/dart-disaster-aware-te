@@ -208,17 +208,31 @@ def parse_hurdat2(text: str) -> dict[str, dict]:
     return storms
 
 
-def hurricane_scenario(topo, storm_id, storm, wind_kt, interp_hours, link_step_km) -> Scenario:
+def hurricane_scenario(topo, storm_id, storm, wind_kt, interp_hours, link_step_km, *,
+                       missing_radii: str, max_gap_hours: float | None) -> Scenario:
+    """missing_radii:
+      "error"     -- off-synoptic rows without radii are dropped (NHC convention); a missing radius
+                     on a synoptic row raises (used for all HURDAT2 experiments up to stage 2a);
+      "drop_rows" -- every row without radii is dropped; interpolation only bridges gaps of at
+                     most max_gap_hours between usable rows; longer gaps contribute no footprint
+                     (nothing is invented). Raises if fewer than 2 usable rows remain."""
     if wind_kt not in (34, 50, 64):
         raise ValueError("wind_kt must be 34, 50 or 64 (HURDAT2 wind-radii classes)")
-    # Off-synoptic rows (landfall / peak-intensity entries, not at 00/06/12/18 UTC) carry no wind
-    # radii (-999) by NHC convention; they are dropped and covered by interpolation between the
-    # 6-hourly synoptic rows. A missing radius on a synoptic row is an error.
-    synoptic = lambda p: p.time.minute == 0 and p.time.hour % 6 == 0
-    tr = [p for p in storm["track"] if synoptic(p) or min(p.radii_nm[wind_kt]) >= 0]
-    if any(min(p.radii_nm[wind_kt]) < 0 for p in tr):
-        raise ValueError(f"{storm_id}: missing {wind_kt}-kt wind radii (-999) on a synoptic row; "
-                         "HURDAT2 radii exist only from 2004")
+    has = lambda p: min(p.radii_nm[wind_kt]) >= 0
+    if missing_radii == "error":
+        if max_gap_hours is not None:
+            raise ValueError("max_gap_hours is only used with missing_radii='drop_rows'")
+        synoptic = lambda p: p.time.minute == 0 and p.time.hour % 6 == 0
+        tr = [p for p in storm["track"] if synoptic(p) or has(p)]
+        if not all(has(p) for p in tr):
+            raise ValueError(f"{storm_id}: missing {wind_kt}-kt wind radii (-999) on a synoptic row; "
+                             "HURDAT2 radii exist only from 2004")
+    elif missing_radii == "drop_rows":
+        tr = [p for p in storm["track"] if has(p)]
+        if len(tr) < 2:
+            raise ValueError(f"{storm_id}: missing {wind_kt}-kt wind radii: fewer than 2 usable rows")
+    else:
+        raise ValueError(f"unknown missing_radii {missing_radii!r}")
     # linear interpolation in time of position and radii
     T = np.array([(p.time - tr[0].time).total_seconds() / 3600 for p in tr])
     tq = np.arange(0.0, T[-1] + 1e-9, interp_hours)
@@ -227,6 +241,10 @@ def hurricane_scenario(topo, storm_id, storm, wind_kt, interp_hours, link_step_k
     lon = (np.interp(tq, T, lon_unw) + 180.0) % 360.0 - 180.0
     lat = np.interp(tq, T, [p.lat for p in tr])
     R = np.column_stack([np.interp(tq, T, [p.radii_nm[wind_kt][q] for p in tr]) for q in range(4)]) * NM_TO_KM
+    if missing_radii == "drop_rows":
+        j = np.clip(np.searchsorted(T, tq, side="right") - 1, 0, len(T) - 2)
+        on_row = np.isclose(tq, T[j]) | np.isclose(tq, T[j + 1])
+        R[(T[j + 1] - T[j] > max_gap_hours) & ~on_row] = 0.0
 
     def inside(P):
         P = np.atleast_2d(P)

@@ -63,7 +63,7 @@ def parse_ibtracs(path: str, first_season: int):
     return storms
 
 
-def cyclone_scenarios(topo, storms, wind_kt, interp_hours, step):
+def cyclone_scenarios(topo, storms, wind_kt, interp_hours, step, missing_radii, max_gap_hours):
     """One scenario per storm whose footprint fails something. Storms with missing radii on a
     synoptic row (for this wind class) are skipped and counted, never silently fixed."""
     out, skipped = [], []
@@ -71,7 +71,8 @@ def cyclone_scenarios(topo, storms, wind_kt, interp_hours, step):
         if len(s["track"]) < 2:
             skipped.append((sid, "fewer than 2 rows")); continue
         try:
-            sc = F.hurricane_scenario(topo, sid, s, wind_kt, interp_hours, step)
+            sc = F.hurricane_scenario(topo, sid, s, wind_kt, interp_hours, step,
+                                      missing_radii=missing_radii, max_gap_hours=max_gap_hours)
         except ValueError as e:
             if "missing" in str(e):
                 skipped.append((sid, "missing radii")); continue

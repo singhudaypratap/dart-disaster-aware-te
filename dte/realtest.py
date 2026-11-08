@@ -46,7 +46,8 @@ def build(cfg, out):
     for topo in load_topologies(cfg):
         lst = []
         for kt in cy["wind_kt"]:
-            sc, sk = E.cyclone_scenarios(topo, storms, kt, cy["interp_hours"], step)
+            sc, sk = E.cyclone_scenarios(topo, storms, kt, cy["interp_hours"], step,
+                                          cy["missing_radii"], cy["max_gap_hours"])
             skipped += [(topo.name, kt, *x) for x in sk]
             for s in sc:
                 s.meta.update(year=storms[s.meta["storm_id"]]["season"], family="hurricane", threshold=f"{kt}kt")

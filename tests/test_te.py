@@ -94,7 +94,7 @@ def test_hurricane_quadrant_logic():
     storm = {"name": "TEST", "track": [tp(0), tp(6)]}
     D = np.zeros((2, 2)); D[0, 1] = 1
     T = _topo([(0, 1)], [1], D, lonlat=[(0.5, 0.5), (-0.5, -0.5)])   # NE node inside, SW node outside
-    sc = F.hurricane_scenario(T, "X", storm, 64, 1.0, 10.0)
+    sc = F.hurricane_scenario(T, "X", storm, 64, 1.0, 10.0, missing_radii="error", max_gap_hours=None)
     assert list(sc.dead_node) == [True, False]
 
 
@@ -133,5 +133,19 @@ def test_hurricane_track_crossing_dateline_interpolates_short_way():
     storm = {"name": "T", "track": [mk(0, 179.0), mk(6, -179.0)]}     # crosses 180 between rows
     D = np.zeros((2, 2)); D[0, 1] = 1
     T = _topo([(0, 1)], [1], D, lonlat=[(180.0 - 1e-9, 0.0), (0.0, 0.0)])  # node 0 on the dateline
-    sc = F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0)
+    sc = F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0, missing_radii="error", max_gap_hours=None)
     assert sc.dead_node[0] and not sc.dead_node[1]
+
+
+def test_drop_rows_does_not_bridge_long_gaps():
+    import datetime as dt
+    mk = lambda h, lon, r: F.TrackPoint(dt.datetime(2020, 1, 1) + dt.timedelta(hours=h), lon, 0.0, 100.0,
+                                        {34: (r, r, r, r), 50: (0, 0, 0, 0), 64: (0, 0, 0, 0)})
+    # usable rows at t=0 (lon 0) and t=48 h (lon 10); a 48 h gap must not paint a footprint at lon 5
+    storm = {"name": "T", "track": [mk(0, 0.0, 50), mk(24, 5.0, -999), mk(48, 10.0, 50)]}
+    D = np.zeros((2, 2)); D[0, 1] = 1
+    T = _topo([(0, 1)], [1], D, lonlat=[(5.0, 0.0), (20.0, 0.0)])
+    sc = F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0, missing_radii="drop_rows", max_gap_hours=12.0)
+    assert not sc.dead_node[0]
+    with pytest.raises(ValueError):
+        F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0, missing_radii="error", max_gap_hours=None)

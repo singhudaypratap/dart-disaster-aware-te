@@ -66,7 +66,8 @@ def build_scenarios(cfg, topo: Topology, rng: np.random.Generator, grids, storms
     hc = sc_cfg["hurricane"]
     for sid in hc["storms"]:
         for kt in hc["wind_kt"]:
-            out.append(F.hurricane_scenario(topo, sid, storms[sid], kt, hc["interp_hours"], step))
+            out.append(F.hurricane_scenario(topo, sid, storms[sid], kt, hc["interp_hours"], step,
+                                                  missing_radii="error", max_gap_hours=None))
     rd = sc_cfg["random_disk"]
     for r in rd["radii_km"]:
         out += F.random_disk_scenarios(topo, r, rd["n_per_radius"], rd["margin_deg"], step, rng,

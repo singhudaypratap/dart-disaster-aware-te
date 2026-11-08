@@ -81,6 +81,8 @@ cyclones:
   - 34
   - 64
   interp_hours: 1.0
+  missing_radii: drop_rows
+  max_gap_hours: 12.0
 earthquakes:
   start: '1990-01-01'
   end: '2025-12-31'

@@ -28,7 +28,8 @@ TARGET = None  # set from config: the rule judged by the criterion
 
 
 def hurricane_scen(topo, storms, ids, kts, ih, step):
-    return [F.hurricane_scenario(topo, sid, storms[sid], kt, ih, step) for sid in ids for kt in kts]
+    return [F.hurricane_scenario(topo, sid, storms[sid], kt, ih, step, missing_radii="error",
+                                   max_gap_hours=None) for sid in ids for kt in kts]
 
 
 def stack(topo, scen):
