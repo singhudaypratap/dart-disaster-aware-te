@@ -86,9 +86,12 @@ CLAUDE.md       manuscript-writing rules used for this paper
 
 ## Pre-registration trail
 
-The development history, criteria and outcomes were first committed in
-`singhudaypratap/nipa-book-chapter` (branch `claude/awesome-gauss-9xxnge`, directory `disaster-te`);
-commit identifiers in Supplementary Table S2 refer to that repository.
+Every criterion was committed before its test was run, and every outcome (including the failed
+pilot) was committed verbatim afterwards. The complete development history, with the original
+commit messages and timestamps, is in the branch
+[`preregistration-history`](https://github.com/singhudaypratap/dart-disaster-aware-te/commits/preregistration-history).
+[`PREREGISTRATION.md`](PREREGISTRATION.md) maps the commit identifiers cited in Supplementary
+Table S2 (from the original development repository, `singhudaypratap/nipa-book-chapter`) to that branch.
 
 ## License
 
