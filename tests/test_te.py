@@ -106,3 +106,21 @@ def test_rescale_falls_back_to_equal_split_on_unused_backup_paths():
     sc = F.Scenario("x", "test", np.zeros(4, bool), np.array([True, False, False, False]))
     o = te.evaluate_splits(T, T.demand_mbps, P, base, sc.dead_arc(T), sc.dead_node, renormalise=True)
     assert o.lost_routing_mbps == pytest.approx(0) and o.mlu == pytest.approx(1.0)
+
+
+def test_dart_opt_picks_path_that_survives_training_failures():
+    # 0->3 with three candidate routes via 1, 2, 4. Training scenarios always kill link (0,2)
+    # together with the primary route via 1; DART must pick the route via 4 as backup, while
+    # a pure shortest-length tie-break would pick via 2.
+    from dte import pathsel
+    D = np.zeros((5, 5)); D[0, 3] = 1
+    T = _topo([(0, 1), (1, 3), (0, 2), (2, 3), (0, 4), (4, 3)], [1] * 6, D,
+              lonlat=[(0, 0), (1, 1), (1, 0), (2, 0), (1, -1)])
+    arcs, _, link_of_arc = T.arcs()
+    cands = {(0, 3): [[arcs.index((0, 1)), arcs.index((1, 3))],
+                      [arcs.index((0, 2)), arcs.index((2, 3))],
+                      [arcs.index((0, 4)), arcs.index((4, 3))]]}
+    dead_link = np.array([True, False, True, False, False, False])     # (0,1) and (0,2) fail together
+    dead_arc = dead_link[link_of_arc][None, :]
+    sel = pathsel.select_dart_opt(T, 2, cands, dead_arc, np.zeros((1, 5), bool), np.ones(1))
+    assert sel[(0, 3)][1] == cands[(0, 3)][2]
