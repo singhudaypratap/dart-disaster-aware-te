@@ -1,0 +1,353 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{ffc14}
+H.~H. Liu, S.~Kandula, R.~Mahajan, M.~Zhang, D.~Gelernter, Traffic engineering
+  with forward fault correction, in: Proceedings of the 2014 ACM conference on
+  SIGCOMM, ACM, 2014, pp. 527--538.
+\newblock \href {https://doi.org/10.1145/2619239.2626314}
+  {\path{doi:10.1145/2619239.2626314}}.
+
+\bibitem{teavar19}
+J.~Bogle, N.~Bhatia, M.~Ghobadi, I.~Menache, N.~Bj{\o}rner, A.~Valadarsky,
+  M.~Schapira, Teavar: striking the right utilization-availability balance in
+  wan traffic engineering, in: Proceedings of the ACM Special Interest Group on
+  Data Communication, ACM, 2019, pp. 29--43.
+\newblock \href {https://doi.org/10.1145/3341302.3342069}
+  {\path{doi:10.1145/3341302.3342069}}.
+
+\bibitem{neumayer11}
+S.~Neumayer, G.~Zussman, R.~Cohen, E.~Modiano, Assessing the vulnerability of
+  the fiber infrastructure to disasters, IEEE/ACM Transactions on Networking
+  19~(6) (2011) 1610--1623.
+\newblock \href {https://doi.org/10.1109/tnet.2011.2128879}
+  {\path{doi:10.1109/tnet.2011.2128879}}.
+
+\bibitem{agarwal13}
+P.~K. Agarwal, A.~Efrat, S.~K. Ganjugunte, D.~Hay, S.~Sankararaman, G.~Zussman,
+  The resilience of wdm networks to probabilistic geographical failures,
+  IEEE/ACM Transactions on Networking 21~(5) (2013) 1525--1538.
+\newblock \href {https://doi.org/10.1109/tnet.2012.2232111}
+  {\path{doi:10.1109/tnet.2012.2232111}}.
+
+\bibitem{habib13}
+M.~F. Habib, M.~Tornatore, F.~Dikbiyik, B.~Mukherjee, Disaster survivability in
+  optical communication networks, Computer Communications 36~(6) (2013)
+  630--644.
+\newblock \href {https://doi.org/10.1016/j.comcom.2013.01.004}
+  {\path{doi:10.1016/j.comcom.2013.01.004}}.
+
+\bibitem{giraosilva20}
+R.~Gir{\~a}o-Silva, B.~Nedic, M.~Gunkel, T.~Gomes, Shared risk link group
+  disjointness and geodiverse routing: A trade-off between benefit and
+  practical effort, Networks 75~(4) (2020) 374--391.
+\newblock \href {https://doi.org/10.1002/net.21931}
+  {\path{doi:10.1002/net.21931}}.
+
+\bibitem{dote23}
+Y.~Perry, F.~Vieira~Frujeri, C.~Hoch, S.~Kandula, I.~Menache, M.~Schapira,
+  A.~Tamar,
+  \href{https://www.usenix.org/conference/nsdi23/presentation/perry}{{DOTE}:
+  Rethinking (predictive) {WAN} traffic engineering}, in: 20th USENIX Symposium
+  on Networked Systems Design and Implementation (NSDI 23), USENIX Association,
+  2023.
+\newline\urlprefix\url{https://www.usenix.org/conference/nsdi23/presentation/perry}
+
+\bibitem{teal23}
+Z.~Xu, F.~Y. Yan, R.~Singh, J.~T. Chiu, A.~M. Rush, M.~Yu, Teal:
+  Learning-accelerated optimization of wan traffic engineering, in: Proceedings
+  of the ACM SIGCOMM 2023 Conference, ACM, 2023, pp. 378--393.
+\newblock \href {https://doi.org/10.1145/3603269.3604857}
+  {\path{doi:10.1145/3603269.3604857}}.
+
+\bibitem{harp24}
+A.~A. AlQiam, Y.~Yao, Z.~Wang, S.~S. Ahuja, Y.~Zhang, S.~G. Rao, B.~Ribeiro,
+  M.~Tawarmalani, Transferable neural wan te for changing topologies, in:
+  Proceedings of the ACM SIGCOMM 2024 Conference, ACM, 2024, pp. 86--102.
+\newblock \href {https://doi.org/10.1145/3651890.3672237}
+  {\path{doi:10.1145/3651890.3672237}}.
+
+\bibitem{geminet26}
+X.~Liu, Z.~Liu, Y.~Mao, Y.~Li, S.~Zhao, X.~Wang,
+  \href{https://www.usenix.org/conference/nsdi26/presentation/liu-ximeng}{Geminet:
+  Learning the duality-based topology-agnostic update operator for lightweight
+  traffic engineering in changing topologies}, in: 23rd USENIX Symposium on
+  Networked Systems Design and Implementation (NSDI 26), USENIX Association,
+  2026.
+\newline\urlprefix\url{https://www.usenix.org/conference/nsdi26/presentation/liu-ximeng}
+
+\bibitem{pathgnn25}
+M.~Ye, J.~Zhang, Z.~Guo, H.~J. Chao, Path-based graph neural network for robust
+  and resilient routing in distributed traffic engineering, IEEE Journal on
+  Selected Areas in Communications 43~(2) (2025) 422--436.
+\newblock \href {https://doi.org/10.1109/jsac.2025.3528815}
+  {\path{doi:10.1109/jsac.2025.3528815}}.
+
+\bibitem{shakemap99}
+D.~J. Wald, V.~Quitoriano, T.~H. Heaton, H.~Kanamori, Relationships between
+  peak ground acceleration, peak ground velocity, and modified mercalli
+  intensity in california, Earthquake Spectra 15~(3) (1999) 557--564.
+\newblock \href {https://doi.org/10.1193/1.1586058}
+  {\path{doi:10.1193/1.1586058}}.
+
+\bibitem{hurdat13}
+C.~W. Landsea, J.~L. Franklin, Atlantic hurricane database uncertainty and
+  presentation of a new database format, Monthly Weather Review 141~(10) (2013)
+  3576--3592.
+\newblock \href {https://doi.org/10.1175/mwr-d-12-00254.1}
+  {\path{doi:10.1175/mwr-d-12-00254.1}}.
+
+\bibitem{ibtracs10}
+K.~R. Knapp, M.~C. Kruk, D.~H. Levinson, H.~J. Diamond, C.~J. Neumann, The
+  international best track archive for climate stewardship (ibtracs): Unifying
+  tropical cyclone data, Bulletin of the American Meteorological Society 91~(3)
+  (2010) 363--376.
+\newblock \href {https://doi.org/10.1175/2009bams2755.1}
+  {\path{doi:10.1175/2009bams2755.1}}.
+
+\bibitem{prete25}
+C.~Miao, Z.~Zhong, Y.~Zhao, A.~Gupta, Y.~Zhang, S.~Li, Z.~He, X.~Zou, J.~Wang,
+  Prete: Traffic engineering with predictive failures, in: Proceedings of the
+  ACM SIGCOMM 2025 Conference, ACM, 2025, pp. 780--795.
+\newblock \href {https://doi.org/10.1145/3718958.3750508}
+  {\path{doi:10.1145/3718958.3750508}}.
+
+\bibitem{aegis26}
+Z.~Zhang, X.~Lin, G.~Xue, K.~S. Chan, Aegis: Throughput-guaranteed resilient
+  routing via a conditional value-at-risk approach, IEEE Transactions on
+  Networking 34 (2026) 4929--4943.
+\newblock \href {https://doi.org/10.1109/ton.2026.3684425}
+  {\path{doi:10.1109/ton.2026.3684425}}.
+
+\bibitem{metaopt24}
+P.~Namyar, B.~Arzani, R.~Beckett, S.~Segarra, H.~Raj, U.~Krishnaswamy,
+  R.~Govindan, S.~Kandula,
+  \href{https://www.usenix.org/conference/nsdi24/presentation/namyar-finding}{Finding
+  adversarial inputs for heuristics using multi-level optimization}, in: 21st
+  USENIX Symposium on Networked Systems Design and Implementation (NSDI 24),
+  USENIX Association, 2024.
+\newline\urlprefix\url{https://www.usenix.org/conference/nsdi24/presentation/namyar-finding}
+
+\bibitem{figret24}
+X.~Liu, S.~Zhao, Y.~Cui, X.~Wang, Figret: Fine-grained robustness-enhanced
+  traffic engineering, in: Proceedings of the ACM SIGCOMM 2024 Conference, ACM,
+  2024, pp. 117--135.
+\newblock \href {https://doi.org/10.1145/3651890.3672258}
+  {\path{doi:10.1145/3651890.3672258}}.
+
+\bibitem{dts25}
+M.~Ameur, A.~Bradai, N.~Lagraa, Exploring teacher-student learning with
+  multi-agent drl for qos routing in sdn, in: ICC 2025 - IEEE International
+  Conference on Communications, IEEE, 2025, pp. 5933--5938.
+\newblock \href {https://doi.org/10.1109/icc52391.2025.11161544}
+  {\path{doi:10.1109/icc52391.2025.11161544}}.
+
+\bibitem{rarl26}
+J.~Liu, Adversarial reinforcement learning with gcn-transformer for cross-layer
+  routing in space-air-ground integrated networks, in: 2026 China Aerospace
+  Information Technology Conference (CAIT), IEEE, 2026, pp. 1--4.
+\newblock \href {https://doi.org/10.1109/cait70489.2026.11553865}
+  {\path{doi:10.1109/cait70489.2026.11553865}}.
+
+\bibitem{metis20}
+Z.~Meng, M.~Wang, J.~Bai, M.~Xu, H.~Mao, H.~Hu, Interpreting deep
+  learning-based networking systems, in: Proceedings of the Annual conference
+  of the ACM Special Interest Group on Data Communication on the applications,
+  technologies, architectures, and protocols for computer communication, ACM,
+  2020, pp. 154--171.
+\newblock \href {https://doi.org/10.1145/3387514.3405859}
+  {\path{doi:10.1145/3387514.3405859}}.
+
+\bibitem{clearnet25}
+C.~Zilli, A.~Sacco, F.~Esposito, G.~Marchetto, Clearnet: Enhancing transparency
+  in opaque network models using explainable ai (xai) for efficient traffic
+  engineering, IEEE Transactions on Network and Service Management 22~(4)
+  (2025) 3617--3631.
+\newblock \href {https://doi.org/10.1109/tnsm.2025.3567654}
+  {\path{doi:10.1109/tnsm.2025.3567654}}.
+
+\bibitem{vasileva26}
+P.~Vasileva, S.~McKee, A.~Penev, M.~Babik, Y.~Shavitt, Explainable
+  routing-aware incident triage from active measurements, in: Proceedings of
+  the 2026 Applied Networking Research Workshop, ACM, 2026, pp. 67--74.
+\newblock \href {https://doi.org/10.1145/3822163.3827937}
+  {\path{doi:10.1145/3822163.3827937}}.
+
+\bibitem{neumayer10}
+S.~Neumayer, E.~Modiano, Network reliability with geographically correlated
+  failures, in: 2010 Proceedings IEEE INFOCOM, IEEE, 2010, pp. 1--9.
+\newblock \href {https://doi.org/10.1109/infcom.2010.5461984}
+  {\path{doi:10.1109/infcom.2010.5461984}}.
+
+\bibitem{rak20}
+J.~Rak, P.~E. Heegaard, B.~E. Helvik, Resilience of communication networks to
+  random failures and disasters: An optimization perspective, Networks 75~(4)
+  (2020) 337--339.
+\newblock \href {https://doi.org/10.1002/net.21940}
+  {\path{doi:10.1002/net.21940}}.
+
+\bibitem{andresthio22}
+N.~Andr{\'e}s-Thi{\'o}, M.~Brazil, C.~Ras, D.~Thomas, Network augmentation for
+  disaster-resilience against geographically correlated failure, Networks
+  81~(4) (2022) 419--444.
+\newblock \href {https://doi.org/10.1002/net.22138}
+  {\path{doi:10.1002/net.22138}}.
+
+\bibitem{ferdousi20}
+S.~Ferdousi, M.~Tornatore, F.~Dikbiyik, C.~U. Martel, S.~Xu, Y.~Hirota,
+  Y.~Awaji, B.~Mukherjee, Joint progressive network and datacenter recovery
+  after large-scale disasters, IEEE Transactions on Network and Service
+  Management 17~(3) (2020) 1501--1514.
+\newblock \href {https://doi.org/10.1109/tnsm.2020.2983822}
+  {\path{doi:10.1109/tnsm.2020.2983822}}.
+
+\bibitem{fedrdr24}
+J.~Li, A.~Liu, G.~Han, S.~Cao, F.~Wang, X.~Wang, Fedrdr: Federated
+  reinforcement distillation-based routing algorithm in uav-assisted networks
+  for communication infrastructure failures, Drones 8~(2) (2024) 49.
+\newblock \href {https://doi.org/10.3390/drones8020049}
+  {\path{doi:10.3390/drones8020049}}.
+
+\bibitem{sreeveda26}
+K.~Sreeveda, K.~B. Batta, Adaptive game-theoretic routing for software-defined
+  networks under single-link failures: Performance analysis and trade-offs,
+  International Journal of Safety and Security Engineering 16~(7) (2026)
+  1657--1669.
+\newblock \href {https://doi.org/10.18280/ijsse.160720}
+  {\path{doi:10.18280/ijsse.160720}}.
+
+\bibitem{du24}
+A.~Du, Implications of 5g rollout on post-earthquake functionality of regional
+  telecommunication infrastructure, Journal of Infrastructure Intelligence and
+  Resilience 3~(1) (2024) 100084.
+\newblock \href {https://doi.org/10.1016/j.iintel.2024.100084}
+  {\path{doi:10.1016/j.iintel.2024.100084}}.
+
+\bibitem{chiew24}
+S.-H. Chiew, K.~Poirier, R.~Mishra, U.~Bornheimer, E.~Munro, S.~H. Foon, C.~W.
+  Chen, W.~S. Lim, C.~W. Nga, Multiobjective optimization and network routing
+  with near-term quantum computers, IEEE Transactions on Quantum Engineering 5
+  (2024) 1--19.
+\newblock \href {https://doi.org/10.1109/tqe.2024.3386753}
+  {\path{doi:10.1109/tqe.2024.3386753}}.
+
+\bibitem{bouchmal25}
+O.~Bouchmal, B.~Cimoli, R.~Stabile, J.~J. Vegas~Olmos, I.~Tafur~Monroy, Quantum
+  approximate optimization algorithm applied to multi-objective routing for
+  large scale 6g networks, Computer Networks 267 (2025) 111345.
+\newblock \href {https://doi.org/10.1016/j.comnet.2025.111345}
+  {\path{doi:10.1016/j.comnet.2025.111345}}.
+
+\bibitem{davies25}
+E.~Davies, D.~Banfield, B.~Weaver, C.~White, N.~Walker, Routing and wavelength
+  assignment problems in optical networks---comparing formulations for solution
+  by quantum annealing, Journal of Optical Communications and Networking
+  17~(12) (2025) B83.
+\newblock \href {https://doi.org/10.1364/jocn.553657}
+  {\path{doi:10.1364/jocn.553657}}.
+
+\bibitem{harb26}
+M.~Harb, N.~Foroughi, M.~Stehman, B.~Lutz, N.~Erez, E.~Garcell, Quantum-based
+  resilient routing in networks: Minimizing latency under dual-link failures,
+  IEEE Transactions on Quantum Engineering 7 (2026) 3103913--3103913.
+\newblock \href {https://doi.org/10.1109/tqe.2026.3702858}
+  {\path{doi:10.1109/tqe.2026.3702858}}.
+
+\bibitem{cvar00}
+R.~T. Rockafellar, S.~Uryasev, Optimization of conditional value-at-risk, The
+  Journal of Risk 2~(3) (2000) 21--41.
+\newblock \href {https://doi.org/10.21314/jor.2000.038}
+  {\path{doi:10.21314/jor.2000.038}}.
+
+\bibitem{suurballe74}
+J.~W. Suurballe, Disjoint paths in a network, Networks 4~(2) (1974) 125--145.
+\newblock \href {https://doi.org/10.1002/net.3230040204}
+  {\path{doi:10.1002/net.3230040204}}.
+
+\bibitem{yen71}
+J.~Y. Yen, Finding the <i>k</i> shortest loopless paths in a network,
+  Management Science 17~(11) (1971) 712--716.
+\newblock \href {https://doi.org/10.1287/mnsc.17.11.712}
+  {\path{doi:10.1287/mnsc.17.11.712}}.
+
+\bibitem{nemhauser78}
+G.~L. Nemhauser, L.~A. Wolsey, M.~L. Fisher, An analysis of approximations for
+  maximizing submodular set functions---i, Mathematical Programming 14~(1)
+  (1978) 265--294.
+\newblock \href {https://doi.org/10.1007/bf01588971}
+  {\path{doi:10.1007/bf01588971}}.
+
+\bibitem{topozoo11}
+S.~Knight, H.~X. Nguyen, N.~Falkner, R.~Bowden, M.~Roughan, The internet
+  topology zoo, IEEE Journal on Selected Areas in Communications 29~(9) (2011)
+  1765--1775.
+\newblock \href {https://doi.org/10.1109/jsac.2011.111002}
+  {\path{doi:10.1109/jsac.2011.111002}}.
+
+\bibitem{topohub23}
+P.~Jurkiewicz, Topohub: A repository of reference gabriel graph and real-world
+  topologies for networking research, SoftwareX 24 (2023) 101540.
+\newblock \href {https://doi.org/10.1016/j.softx.2023.101540}
+  {\path{doi:10.1016/j.softx.2023.101540}}.
+
+\bibitem{sndlib10}
+S.~Orlowski, R.~Wess{\"a}ly, M.~Pi{\'o}ro, A.~Tomaszewski, Sndlib
+  1.0---survivable network design library, Networks 55~(3) (2009) 276--286.
+\newblock \href {https://doi.org/10.1002/net.20371}
+  {\path{doi:10.1002/net.20371}}.
+
+\bibitem{highs18}
+Q.~Huangfu, J.~A.~J. Hall, Parallelizing the dual revised simplex method,
+  Mathematical Programming Computation 10~(1) (2017) 119--142.
+\newblock \href {https://doi.org/10.1007/s12532-017-0130-5}
+  {\path{doi:10.1007/s12532-017-0130-5}}.
+
+\bibitem{scipy20}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, M.~Haberland, T.~Reddy, D.~Cournapeau,
+  E.~Burovski, P.~Peterson, W.~Weckesser, J.~Bright, S.~J. van~der Walt,
+  M.~Brett, J.~Wilson, K.~J. Millman, N.~Mayorov, A.~R.~J. Nelson, E.~Jones,
+  R.~Kern, E.~Larson, C.~J. Carey, {\.I}.~Polat, Y.~Feng, E.~W. Moore,
+  J.~VanderPlas, D.~Laxalde, J.~Perktold, R.~Cimrman, I.~Henriksen, E.~A.
+  Quintero, C.~R. Harris, A.~M. Archibald, A.~H. Ribeiro, F.~Pedregosa, P.~van
+  Mulbregt, A.~Vijaykumar, A.~P. Bardelli, A.~Rothberg, A.~Hilboll,
+  A.~Kloeckner, A.~Scopatz, A.~Lee, A.~Rokem, C.~N. Woods, C.~Fulton,
+  C.~Masson, C.~H{\"a}ggstr{\"o}m, C.~Fitzgerald, D.~A. Nicholson, D.~R. Hagen,
+  D.~V. Pasechnik, E.~Olivetti, E.~Martin, E.~Wieser, F.~Silva, F.~Lenders,
+  F.~Wilhelm, G.~Young, G.~A. Price, G.-L. Ingold, G.~E. Allen, G.~R. Lee,
+  H.~Audren, I.~Probst, J.~P. Dietrich, J.~Silterra, J.~T. Webber, J.~Slavi{\v
+  c}, J.~Nothman, J.~Buchner, J.~Kulick, J.~L. Sch{\"o}nberger, J.~V.
+  de~Miranda~Cardoso, J.~Reimer, J.~Harrington, J.~L.~C. Rodr{\'i}guez,
+  J.~Nunez-Iglesias, J.~Kuczynski, K.~Tritz, M.~Thoma, M.~Newville,
+  M.~K{\"u}mmerer, M.~Bolingbroke, M.~Tartre, M.~Pak, N.~J. Smith, N.~Nowaczyk,
+  N.~Shebanov, O.~Pavlyk, P.~A. Brodtkorb, P.~Lee, R.~T. McGibbon,
+  R.~Feldbauer, S.~Lewis, S.~Tygier, S.~Sievert, S.~Vigna, S.~Peterson,
+  S.~More, T.~Pudlik, T.~Oshima, T.~J. Pingel, T.~P. Robitaille, T.~Spura,
+  T.~R. Jones, T.~Cera, T.~Leslie, T.~Zito, T.~Krauss, U.~Upadhyay, Y.~O.
+  Halchenko, Y.~V{\'a}zquez-Baeza, Scipy 1.0: fundamental algorithms for
+  scientific computing in python, Nature Methods 17~(3) (2020) 261--272.
+\newblock \href {https://doi.org/10.1038/s41592-019-0686-2}
+  {\path{doi:10.1038/s41592-019-0686-2}}.
+
+\bibitem{networkx08}
+A.~A. Hagberg, D.~A. Schult, P.~J. Swart, Exploring network structure,
+  dynamics, and function using networkx, in: Proceedings of the 7th Python in
+  Science Conference, SciPy, 2008, pp. 11--15.
+\newblock \href {https://doi.org/10.25080/tcwv9851}
+  {\path{doi:10.25080/tcwv9851}}.
+
+\bibitem{wilcoxon45}
+F.~Wilcoxon, Individual comparisons by ranking methods, Biometrics Bulletin
+  1~(6) (1945) 80.
+\newblock \href {https://doi.org/10.2307/3001968} {\path{doi:10.2307/3001968}}.
+
+\bibitem{holm79}
+S.~Holm, \href{https://www.jstor.org/stable/4615733}{A simple sequentially
+  rejective multiple test procedure}, Scandinavian Journal of Statistics 6~(2)
+  (1979) 65--70.
+\newline\urlprefix\url{https://www.jstor.org/stable/4615733}
+
+\end{thebibliography}
