@@ -61,7 +61,7 @@ We use the word ``learned'' in a narrow sense. DART estimates which tunnels fail
 \label{sec:related}
 
 \paragraph{Traffic engineering under failures}
-Forward fault correction (FFC) provisions traffic so that any $k$ link or switch failures cause no congestion \cite{ffc14}. TeaVaR treats failures probabilistically and optimises the conditional value at risk of the traffic that cannot be delivered, for a given set of tunnels and per-link failure probabilities \cite{teavar19}. PreTE predicts fibre cuts from optical-layer degradation and moves traffic before the failure \cite{prete25}. AEGIS also uses a conditional value-at-risk formulation to obtain resilient routing with throughput guarantees \cite{aegis26}. MetaOpt searches for inputs on which a TE heuristic performs worst, which turns robustness into an optimisation problem \cite{metaopt24}. These methods decide how much traffic to place on given tunnels, or how to plan for failure probabilities that are inputs to the model. DART addresses an earlier choice: which tunnels exist at all. It estimates joint failures from hazard archives instead of assuming failure probabilities.
+Forward fault correction (FFC) provisions traffic so that any $k$ link or switch failures cause no congestion \cite{ffc14}. TeaVaR treats failures probabilistically and optimises the conditional value at risk of the traffic that cannot be delivered, for a given set of tunnels and per-link failure probabilities \cite{teavar19}. PreTE predicts fibre cuts from optical-layer degradation and moves traffic before the failure \cite{prete25}. AEGIS takes the opposite route to tunnel-based TE: it minimises the conditional value at risk of the total throughput loss over a set of failure situations with a linear program and avoids precomputed paths altogether, noting that tunnel-based TE is limited when only a few paths are precomputed and scales poorly when many are \cite{aegis26}. MetaOpt searches for inputs on which a TE heuristic performs worst, which turns robustness into an optimisation problem \cite{metaopt24}. Except for AEGIS, these methods decide how much traffic to place on given tunnels, or plan for failure probabilities that are inputs to the model. DART stays within tunnel-based TE, which is how most deployed controllers work, and addresses the earlier choice of which few tunnels exist at all. It estimates joint failures from hazard archives instead of assuming failure probabilities.
 
 \paragraph{Learned traffic engineering}
 DOTE learns TE configurations directly from historical demands \cite{dote23}. Teal combines a graph neural network with multi-agent reinforcement learning to accelerate TE optimisation in large wide-area networks \cite{teal23}. HARP \cite{harp24} and Geminet \cite{geminet26} target topologies that change, for example after link failures, and FIGRET makes TE robust to traffic bursts \cite{figret24}. PathGNN models paths and links as a bipartite graph and reports up to 35.3\% better load balancing under multiple link failures in distributed TE \cite{pathgnn25}. Other work applies multi-agent reinforcement learning with teacher--student distillation to QoS routing with link failures \cite{dts25}, or adversarial reinforcement learning to routing in space--air--ground networks \cite{rarl26}. Work on interpretability converts learned networking policies into decision trees \cite{metis20}, explains TE models with explainable-AI tools \cite{clearnet25}, or triages routing incidents from active measurements \cite{vasileva26}. To our knowledge, none of these evaluates path choice against real hazard footprints held out by time.
@@ -86,6 +86,7 @@ Work & Decides tunnel set & Correlated failures & Real hazard footprints & Held 
 FFC \cite{ffc14} & no & $k$ arbitrary & no & -- \\
 TeaVaR \cite{teavar19} & no & via input probabilities & no & -- \\
 PreTE \cite{prete25} & tunnels updated & fibre degradation & optical telemetry & -- \\
+AEGIS \cite{aegis26} & no tunnels & failure situations & no & -- \\
 Learned TE \cite{dote23,teal23,harp24,geminet26,pathgnn25} & no & random / single & no & -- \\
 Geodiverse protection \cite{giraosilva20} & yes & shared-risk groups & no & -- \\
 Geographic failure models \cite{neumayer11,agarwal13} & analysis & geometric & no & -- \\
@@ -330,7 +331,7 @@ We asked whether the record of past cyclones and earthquakes can improve the cho
 % =====================================================================================
 \section*{Data and code availability}
 \label{sec:data}
-\sloppy Code, configurations, pre-registration records (with the commit identifiers in Supplementary Section~S2), result files and figure scripts: \url{https://github.com/singhudaypratap/nipa-book-chapter} (directory \texttt{disaster-te}). \verify{move to a permanent archive with DOI, e.g.\ Zenodo, before submission}. Hazard data are publicly available from the USGS, NOAA and NCEI archives cited above; downloaded files are listed with checksums in the repository.
+\sloppy The DART implementation, evaluation code, configurations, pre-registration records (with the commit identifiers in Supplementary Section~S2), result files and figure scripts are available at \url{https://github.com/singhudaypratap/dart-disaster-aware-te}. Hazard data are publicly available from the USGS, NOAA and NCEI archives cited above; every downloaded file is listed with its checksum in the repository.
 
 \section*{CRediT authorship contribution statement}
 \verify{authors to complete: Conceptualization, Methodology, Software, Validation, Formal analysis, Writing -- original draft, Writing -- review \& editing}.
@@ -339,10 +340,10 @@ We asked whether the record of past cyclones and earthquakes can improve the cho
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 \section*{Declaration of generative AI use}
-\verify{authors to complete according to the journal's policy; an AI assistant was used for code development, data analysis scripting and drafting, and all content was checked by the authors}.
+During the preparation of this work the authors used Claude (Anthropic) to develop the simulation and analysis code, run the experiments and draft the text. After using this tool, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article.
 
 \section*{Funding}
-\verify{authors to complete}.
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors. Computing resources were provided by Poornima Institute of Engineering and Technology, Jaipur.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}
