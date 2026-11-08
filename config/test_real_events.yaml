@@ -1,5 +1,17 @@
 # Real-event test of the FROZEN DART v4 (selection rules in dte/events.py).
-# Stage 1 (build) only counts events; the criterion is added and committed before stage 2.
+# Stage 1 (build) only counts events; the criterion below was added and committed after the
+# build counts were known and BEFORE stage 2 (evaluate) was run (2026-11-08).
+#
+# PRE-REGISTERED CRITERION (pooled real-event test of frozen DART v4):
+#   Test set = real events of year >= 2018 selected by the rules in dte/events.py, at the
+#   primary thresholds 34 kt (cyclones) and MMI 7 (earthquakes): one scenario per event and
+#   topology; build counts: n = 211 over 7 topologies.
+#   PASS if, pooled over all topologies, dart_v4_k4 has a negative mean paired difference in
+#   routable-loss fraction AND a two-sided Wilcoxon signed-rank p < 0.05 after Holm correction
+#   against EACH of ksp_hops_k4, edge_disjoint_k4, geo_diverse_k4. Otherwise FAIL.
+#   Secondary (reported, not part of PASS/FAIL): event-clustered test, stricter thresholds
+#   (64 kt, MMI 8), per-topology and per-threshold means, CVaR95, worst case.
+#   Known limitation stated in advance: real events are not independent across topologies.
 run:
   name: test_real_events
   seed: 20261110
@@ -106,3 +118,7 @@ family_weights:
   hurricane: 1.0
   earthquake: 1.0
   disk: 1.0
+criterion:
+  primary_thresholds: [34kt, mmi7]
+  secondary_thresholds: [64kt, mmi8]
+  alpha: 0.05

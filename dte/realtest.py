@@ -133,7 +133,26 @@ def evaluate(cfg, out, workers):
     lines += [f"  {r:18s} {md:+.5f} {b:5d} {wo:5d} {ti:5d} {p:.3g} {ph:.3g}" for r, md, b, wo, ti, p, ph in res]
     passed = all(md < 0 and ph < crit["alpha"] for _, md, _, _, _, _, ph in res)
     lines.append(f"\nPRE-REGISTERED CRITERION MET: {'PASS' if passed else 'FAIL'}")
-    # secondary: per topology and per threshold (descriptive)
+    # pre-registered secondary 1: event-clustered (one value per real event, averaged over the
+    # topologies it hits), because one storm can hit several networks
+    ev = piv.copy()
+    ev["event"] = [sid.rsplit("_", 1)[0] for _, sid in ev.index]
+    evm = ev.groupby("event").mean(numeric_only=True)
+    lines.append(f"\nSECONDARY event-clustered (n = {len(evm)} distinct events): rule, mean diff, better, worse, p_raw")
+    for r in CLASSICAL:
+        d = evm[T] - evm[r]
+        p = wilcoxon(evm[T], evm[r]).pvalue if (d != 0).any() else 1.0
+        lines.append(f"  {r:18s} {d.mean():+.5f} {int((d < 0).sum()):5d} {int((d > 0).sum()):5d} {p:.3g}")
+    # pre-registered secondary 2: stricter thresholds
+    sec = df[df.threshold.isin(crit["secondary_thresholds"])]
+    if len(sec):
+        ps = sec.pivot_table(index=["topology", "scenario_id"], columns="rule", values="lost_routing_frac")
+        lines.append(f"\nSECONDARY thresholds {crit['secondary_thresholds']} (n = {len(ps)}): rule, mean diff, better, worse, p_raw")
+        for r in CLASSICAL:
+            d = ps[T] - ps[r]
+            p = wilcoxon(ps[T], ps[r]).pvalue if (d != 0).any() else 1.0
+            lines.append(f"  {r:18s} {d.mean():+.5f} {int((d < 0).sum()):5d} {int((d > 0).sum()):5d} {p:.3g}")
+    # secondary 3: per topology and per threshold (descriptive)
     for key in ["topology", "threshold"]:
         g = df.groupby([key, "rule"])["lost_routing_frac"].mean().unstack().round(4)
         lines.append(f"\nSECONDARY mean routable loss by {key} (all thresholds):\n" + g.to_string())
