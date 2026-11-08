@@ -1,0 +1,42 @@
+PRIMARY (thresholds ['34kt', 'mmi7']), pooled over topologies: n = 211 test scenarios
+rule    dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+mean        0.0016            0.0030          0.0053       0.0063       0.0021
+p95         0.0105            0.0198          0.0411       0.0417       0.0114
+cvar95      0.0286            0.0361          0.0674       0.0607       0.0324
+worst       0.0816            0.0832          0.1326       0.1578       0.1256
+
+paired Wilcoxon dart_v4_k4 minus rule (pooled): rule, mean diff, better, worse, tie, p_raw, p_holm
+  ksp_hops_k4        -0.00473   105    43    63 3.37e-12 1.01e-11
+  edge_disjoint_k4   -0.00134    81    54    76 6.1e-06 1.22e-05
+  geo_diverse_k4     -0.00368    77    60    74 0.00381 0.00381
+
+PRE-REGISTERED CRITERION MET: PASS
+
+SECONDARY event-clustered (n = 141 distinct events): rule, mean diff, better, worse, p_raw
+  ksp_hops_k4        -0.00333    79    31 7.68e-11
+  edge_disjoint_k4   -0.00114    60    34 1.56e-06
+  geo_diverse_k4     -0.00519    61    45 0.000756
+
+SECONDARY thresholds ['64kt', 'mmi8'] (n = 56): rule, mean diff, better, worse, p_raw
+  ksp_hops_k4        -0.00325    25    13 0.0123
+  edge_disjoint_k4   -0.00051    23    15 0.0995
+  geo_diverse_k4     -0.00281    20    19 0.0653
+
+SECONDARY mean routable loss by topology (all thresholds):
+rule            dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+topology                                                                              
+attmpls             0.0027            0.0035          0.0049       0.0090       0.0052
+btnorthamerica      0.0005            0.0023          0.0008       0.0070       0.0020
+cernet              0.0000            0.0028          0.0007       0.0041       0.0006
+garr201201          0.0000            0.0000          0.0000       0.0000       0.0000
+geant2012           0.0034            0.0039          0.0033       0.0046       0.0016
+grnet               0.0000            0.0000          0.0000       0.0000       0.0000
+iij                 0.0028            0.0030          0.0113       0.0058       0.0016
+
+SECONDARY mean routable loss by threshold (all thresholds):
+rule       dart_v4_k4  edge_disjoint_k4  geo_diverse_k4  ksp_hops_k4  ksp_hops_k8
+threshold                                                                        
+34kt           0.0017            0.0031          0.0055       0.0066       0.0022
+64kt           0.0023            0.0028          0.0051       0.0056       0.0020
+mmi7           0.0000            0.0000          0.0000       0.0000       0.0000
+mmi8           0.0000            0.0000          0.0000       0.0000       0.0000
