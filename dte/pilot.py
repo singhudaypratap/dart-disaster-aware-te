@@ -114,6 +114,11 @@ def main():
         if "dart_v2_k4" in cfg["extra_rules"]:
             rules["dart_v2_k4"] = pathsel.select_dart_v2(topo, k, cands, *stack(topo, nat),
                                                          family_weights(nat, fam, cfg["family_weights"]))
+        for v, fn in (("dart_v3", pathsel.select_dart_v3),):
+            if f"{v}_k4" in cfg["extra_rules"]:
+                rules[f"{v}_k4"] = fn(topo, k, cands, *stack(topo, nat), family_weights(nat, fam, cfg["family_weights"]))
+            if f"{v}_adv_k4" in cfg["extra_rules"]:
+                rules[f"{v}_adv_k4"] = fn(topo, k, cands, *stack(topo, adv), family_weights(adv, fam, cfg["family_weights"]))
         if "dart_v2_adv_k4" in cfg["extra_rules"]:
             rules["dart_v2_adv_k4"] = pathsel.select_dart_v2(topo, k, cands, *stack(topo, adv),
                                                              family_weights(adv, fam, cfg["family_weights"]))

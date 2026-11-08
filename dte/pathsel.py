@@ -177,3 +177,41 @@ def select_dart_v2(topo, k, cands, train_dead_arc, train_dead_node, train_weight
             covered |= alive[:, c]
         out[(s, t)] = [C[c] for c in chosen]
     return out
+
+
+def select_dart_v3(topo, k, cands, train_dead_arc, train_dead_node, train_weight):
+    """DART v3 (development version):
+      1. backbone = greedy mutually link-disjoint shortest-hop paths, at most k-1 of them
+         (same construction as the edge_disjoint rule);
+      2. remaining slots: greedy weighted coverage of TRAINING failure scenarios in which every
+         backbone path fails, ties broken by fewest links shared with chosen paths, then hops.
+    The learned risk therefore only decides the slot(s) beyond structural protection."""
+    arcs, _, link_of_arc = topo.arcs()
+    ids = {a: i for i, a in enumerate(arcs)}
+    out = {}
+    for (s, t), C in cands.items():
+        C = list(C)
+        G = nx.Graph(); G.add_edges_from(topo.links)
+        backbone = []
+        while len(backbone) < k - 1 and nx.has_path(G, s, t):
+            nodes = nx.shortest_path(G, s, t)
+            p = [ids[(nodes[i], nodes[i + 1])] for i in range(len(nodes) - 1)]
+            backbone.append(p)
+            G.remove_edges_from(topo.links[link_of_arc[a]] for a in p)
+        for p in backbone:
+            if p not in C:
+                C.append(p)
+        chosen = [C.index(p) for p in backbone]
+        alive = np.stack([~train_dead_arc[:, p].any(axis=1) for p in C], axis=1)
+        rel = ~(train_dead_node[:, s] | train_dead_node[:, t])
+        w = train_weight * rel
+        covered = alive[:, chosen].any(axis=1)
+        while len(chosen) < min(k, len(C)):
+            used_links = {link_of_arc[a] for c in chosen for a in C[c]}
+            gain = ((alive & ~covered[:, None]) * w[:, None]).sum(axis=0)
+            key = lambda c: (-gain[c], len({link_of_arc[a] for a in C[c]} & used_links), len(C[c]), c)
+            c = min((c for c in range(len(C)) if c not in chosen), key=key)
+            chosen.append(c)
+            covered |= alive[:, c]
+        out[(s, t)] = [C[c] for c in chosen]
+    return out
