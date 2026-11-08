@@ -5,20 +5,19 @@
 \expandafter\ifx\csname href\endcsname\relax
   \def\href#1#2{#2} \def\path#1{#1}\fi
 
-\bibitem{ffc14}
-H.~H. Liu, S.~Kandula, R.~Mahajan, M.~Zhang, D.~Gelernter, Traffic engineering
-  with forward fault correction, in: Proceedings of the 2014 ACM conference on
-  SIGCOMM, ACM, 2014, pp. 527--538.
-\newblock \href {https://doi.org/10.1145/2619239.2626314}
-  {\path{doi:10.1145/2619239.2626314}}.
+\bibitem{prete25}
+C.~Miao, Z.~Zhong, Y.~Zhao, A.~Gupta, Y.~Zhang, S.~Li, Z.~He, X.~Zou, J.~Wang,
+  Prete: Traffic engineering with predictive failures, in: Proceedings of the
+  ACM SIGCOMM 2025 Conference, ACM, 2025, pp. 780--795.
+\newblock \href {https://doi.org/10.1145/3718958.3750508}
+  {\path{doi:10.1145/3718958.3750508}}.
 
-\bibitem{teavar19}
-J.~Bogle, N.~Bhatia, M.~Ghobadi, I.~Menache, N.~Bj{\o}rner, A.~Valadarsky,
-  M.~Schapira, Teavar: striking the right utilization-availability balance in
-  wan traffic engineering, in: Proceedings of the ACM Special Interest Group on
-  Data Communication, ACM, 2019, pp. 29--43.
-\newblock \href {https://doi.org/10.1145/3341302.3342069}
-  {\path{doi:10.1145/3341302.3342069}}.
+\bibitem{aegis26}
+Z.~Zhang, X.~Lin, G.~Xue, K.~S. Chan, Aegis: Throughput-guaranteed resilient
+  routing via a conditional value-at-risk approach, IEEE Transactions on
+  Networking 34 (2026) 4929--4943.
+\newblock \href {https://doi.org/10.1109/ton.2026.3684425}
+  {\path{doi:10.1109/ton.2026.3684425}}.
 
 \bibitem{neumayer11}
 S.~Neumayer, G.~Zussman, R.~Cohen, E.~Modiano, Assessing the vulnerability of
@@ -34,19 +33,19 @@ P.~K. Agarwal, A.~Efrat, S.~K. Ganjugunte, D.~Hay, S.~Sankararaman, G.~Zussman,
 \newblock \href {https://doi.org/10.1109/tnet.2012.2232111}
   {\path{doi:10.1109/tnet.2012.2232111}}.
 
-\bibitem{habib13}
-M.~F. Habib, M.~Tornatore, F.~Dikbiyik, B.~Mukherjee, Disaster survivability in
-  optical communication networks, Computer Communications 36~(6) (2013)
-  630--644.
-\newblock \href {https://doi.org/10.1016/j.comcom.2013.01.004}
-  {\path{doi:10.1016/j.comcom.2013.01.004}}.
-
 \bibitem{giraosilva20}
 R.~Gir{\~a}o-Silva, B.~Nedic, M.~Gunkel, T.~Gomes, Shared risk link group
   disjointness and geodiverse routing: A trade-off between benefit and
   practical effort, Networks 75~(4) (2020) 374--391.
 \newblock \href {https://doi.org/10.1002/net.21931}
   {\path{doi:10.1002/net.21931}}.
+
+\bibitem{jimenez23}
+D.~Jim{\'e}nez, J.~Barrera, H.~Cancela, Communication network reliability under
+  geographically correlated failures using probabilistic seismic hazard
+  analysis, IEEE Access 11 (2023) 31341--31354.
+\newblock \href {https://doi.org/10.1109/access.2023.3255794}
+  {\path{doi:10.1109/access.2023.3255794}}.
 
 \bibitem{dote23}
 Y.~Perry, F.~Vieira~Frujeri, C.~Hoch, S.~Kandula, I.~Menache, M.~Schapira,
@@ -87,12 +86,13 @@ M.~Ye, J.~Zhang, Z.~Guo, H.~J. Chao, Path-based graph neural network for robust
 \newblock \href {https://doi.org/10.1109/jsac.2025.3528815}
   {\path{doi:10.1109/jsac.2025.3528815}}.
 
-\bibitem{shakemap99}
-D.~J. Wald, V.~Quitoriano, T.~H. Heaton, H.~Kanamori, Relationships between
-  peak ground acceleration, peak ground velocity, and modified mercalli
-  intensity in california, Earthquake Spectra 15~(3) (1999) 557--564.
-\newblock \href {https://doi.org/10.1193/1.1586058}
-  {\path{doi:10.1193/1.1586058}}.
+\bibitem{trinet99}
+D.~J. Wald, V.~Quitoriano, T.~H. Heaton, H.~Kanamori, C.~W. Scrivner, C.~B.
+  Worden, Trinet ``shakemaps'': Rapid generation of peak ground motion and
+  intensity maps for earthquakes in southern california, Earthquake Spectra
+  15~(3) (1999) 537--555.
+\newblock \href {https://doi.org/10.1193/1.1586057}
+  {\path{doi:10.1193/1.1586057}}.
 
 \bibitem{hurdat13}
 C.~W. Landsea, J.~L. Franklin, Atlantic hurricane database uncertainty and
@@ -109,19 +109,26 @@ K.~R. Knapp, M.~C. Kruk, D.~H. Levinson, H.~J. Diamond, C.~J. Neumann, The
 \newblock \href {https://doi.org/10.1175/2009bams2755.1}
   {\path{doi:10.1175/2009bams2755.1}}.
 
-\bibitem{prete25}
-C.~Miao, Z.~Zhong, Y.~Zhao, A.~Gupta, Y.~Zhang, S.~Li, Z.~He, X.~Zou, J.~Wang,
-  Prete: Traffic engineering with predictive failures, in: Proceedings of the
-  ACM SIGCOMM 2025 Conference, ACM, 2025, pp. 780--795.
-\newblock \href {https://doi.org/10.1145/3718958.3750508}
-  {\path{doi:10.1145/3718958.3750508}}.
+\bibitem{alenazi23}
+M.~J.~F. Alenazi, Enrn: A system for evaluating network resilience against
+  natural disasters, Mathematics 11~(20) (2023) 4250.
+\newblock \href {https://doi.org/10.3390/math11204250}
+  {\path{doi:10.3390/math11204250}}.
 
-\bibitem{aegis26}
-Z.~Zhang, X.~Lin, G.~Xue, K.~S. Chan, Aegis: Throughput-guaranteed resilient
-  routing via a conditional value-at-risk approach, IEEE Transactions on
-  Networking 34 (2026) 4929--4943.
-\newblock \href {https://doi.org/10.1109/ton.2026.3684425}
-  {\path{doi:10.1109/ton.2026.3684425}}.
+\bibitem{teavar19}
+J.~Bogle, N.~Bhatia, M.~Ghobadi, I.~Menache, N.~Bj{\o}rner, A.~Valadarsky,
+  M.~Schapira, Teavar: striking the right utilization-availability balance in
+  wan traffic engineering, in: Proceedings of the ACM Special Interest Group on
+  Data Communication, ACM, 2019, pp. 29--43.
+\newblock \href {https://doi.org/10.1145/3341302.3342069}
+  {\path{doi:10.1145/3341302.3342069}}.
+
+\bibitem{ffc14}
+H.~H. Liu, S.~Kandula, R.~Mahajan, M.~Zhang, D.~Gelernter, Traffic engineering
+  with forward fault correction, in: Proceedings of the 2014 ACM conference on
+  SIGCOMM, ACM, 2014, pp. 527--538.
+\newblock \href {https://doi.org/10.1145/2619239.2626314}
+  {\path{doi:10.1145/2619239.2626314}}.
 
 \bibitem{metaopt24}
 P.~Namyar, B.~Arzani, R.~Beckett, S.~Segarra, H.~Raj, U.~Krishnaswamy,
