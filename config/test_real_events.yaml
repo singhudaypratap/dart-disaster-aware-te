@@ -1,0 +1,106 @@
+# Real-event test of the FROZEN DART v4 (selection rules in dte/events.py).
+# Stage 1 (build) only counts events; the criterion is added and committed before stage 2.
+run:
+  name: test_real_events
+  seed: 20261110
+data_dir: data/raw
+topologies:
+- name: attmpls
+  format: topohub_json
+  file: topozoo/AttMpls.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/AttMpls.json
+  sha256: 0740b25cfce9a2596294ae73d045181bc939a0b7d55f99d7568ff0316fd7bc7d
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: btnorthamerica
+  format: topohub_json
+  file: topozoo/BtNorthAmerica.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/BtNorthAmerica.json
+  sha256: 61230f1902940e67d3a98d8f5ec378ef49e343aaeefc25b7b2ecabd8a7a206be
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: geant2012
+  format: topohub_json
+  file: topozoo/Geant2012.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/Geant2012.json
+  sha256: 7b66ebed6baa5c3e9716d29164d68238807abf844c0b77d3f86c1ae13da65bfd
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: iij
+  format: topohub_json
+  file: topozoo/Iij.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/Iij.json
+  sha256: 965931f3d9bda743c200147d25dffb7fa83597802926c5049563a8e6107fd1c7
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: cernet
+  format: topohub_json
+  file: topozoo/Cernet.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/Cernet.json
+  sha256: b9a20476cd4282bebe53df9416b4147e4d6799949d4fe86bbf13313a664166ab
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: garr201201
+  format: topohub_json
+  file: topozoo/Garr201201.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/Garr201201.json
+  sha256: 307d85faa854bc71f5933b4d2fe5b5b81a4063184408544581c11c31b7cba718
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+- name: grnet
+  format: topohub_json
+  file: topozoo/Grnet.json
+  url: https://raw.githubusercontent.com/piotrjurkiewicz/topohub/7a6cc7f6bdddad87ea3e63c4d73dcb3ca14f98cb/data/topozoo/Grnet.json
+  sha256: 2245585af035bb68720e44c502a7425f2160774c72645b1f9be8fed32f69bd39
+  capacity_policy: uniform
+  uniform_capacity_mbps: 10000.0
+  demand_model: gravity_degree
+judged_rule: dart_v4_k4
+target_optimal_mlu: 0.6
+k: 4
+k_reference: 8
+candidates:
+  n_candidates: 32
+  max_stretch_km: 3.0
+geo_sep_km: 50.0
+link_step_km: 10.0
+split_year: 2018
+cyclones:
+  hurdat2_file: events/hurdat2-1851-2025-092326.txt
+  hurdat2_first_season: 2004
+  ibtracs_file: events/ibtracs.WP.list.v04r01.csv
+  ibtracs_url: https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/csv/ibtracs.WP.list.v04r01.csv
+  ibtracs_first_season: 2001
+  wind_kt:
+  - 34
+  - 64
+  interp_hours: 1.0
+earthquakes:
+  start: '1990-01-01'
+  end: '2025-12-31'
+  min_magnitude: 6.0
+  bbox_margin_deg: 2.0
+  prefilter_km: 300.0
+  mmi_thresholds:
+  - 7
+  - 8
+disks:
+  radii_km:
+  - 50
+  - 100
+  - 200
+  - 400
+  n_per_radius_train: 200
+  n_per_radius_test: 200
+  margin_deg: 1.0
+  max_tries: 200000
+family_weights:
+  hurricane: 1.0
+  earthquake: 1.0
+  disk: 1.0

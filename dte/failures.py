@@ -219,10 +219,12 @@ def hurricane_scenario(topo, storm_id, storm, wind_kt, interp_hours, link_step_k
     if any(min(p.radii_nm[wind_kt]) < 0 for p in tr):
         raise ValueError(f"{storm_id}: missing {wind_kt}-kt wind radii (-999) on a synoptic row; "
                          "HURDAT2 radii exist only from 2004")
-    # linear interpolation in time of position and radii (longitude spans here never cross the dateline)
+    # linear interpolation in time of position and radii
     T = np.array([(p.time - tr[0].time).total_seconds() / 3600 for p in tr])
     tq = np.arange(0.0, T[-1] + 1e-9, interp_hours)
-    lon = np.interp(tq, T, [p.lon for p in tr])
+    # unwrap longitude so tracks crossing the 180th meridian interpolate along the short way
+    lon_unw = np.degrees(np.unwrap(np.radians([p.lon for p in tr])))
+    lon = (np.interp(tq, T, lon_unw) + 180.0) % 360.0 - 180.0
     lat = np.interp(tq, T, [p.lat for p in tr])
     R = np.column_stack([np.interp(tq, T, [p.radii_nm[wind_kt][q] for p in tr]) for q in range(4)]) * NM_TO_KM
 

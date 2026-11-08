@@ -53,6 +53,10 @@ def fetch(cfg: dict) -> dict:
             _save(p, data)
         manifest["files"][t["file"]] = {"url": t["url"], "sha256": h}
 
+    if "scenarios" not in cfg:          # e.g. test_real_events.yaml: events fetched by dte/events.py
+        with open(os.path.join(root, "MANIFEST_topologies_" + cfg["run"]["name"] + ".json"), "w") as f:
+            json.dump(manifest, f, indent=1)
+        return manifest
     hc = cfg["scenarios"]["hurricane"]
     p = os.path.join(root, hc["hurdat2_file"])
     data = open(p, "rb").read() if os.path.exists(p) else _get(hc["hurdat2_url"], 120)

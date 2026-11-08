@@ -124,3 +124,14 @@ def test_dart_opt_picks_path_that_survives_training_failures():
     dead_arc = dead_link[link_of_arc][None, :]
     sel = pathsel.select_dart_opt(T, 2, cands, dead_arc, np.zeros((1, 5), bool), np.ones(1))
     assert sel[(0, 3)][1] == cands[(0, 3)][2]
+
+
+def test_hurricane_track_crossing_dateline_interpolates_short_way():
+    import datetime as dt
+    mk = lambda h, lon: F.TrackPoint(dt.datetime(2020, 1, 1, h), lon, 0.0, 100.0,
+                                     {34: (100, 100, 100, 100), 50: (0, 0, 0, 0), 64: (0, 0, 0, 0)})
+    storm = {"name": "T", "track": [mk(0, 179.0), mk(6, -179.0)]}     # crosses 180 between rows
+    D = np.zeros((2, 2)); D[0, 1] = 1
+    T = _topo([(0, 1)], [1], D, lonlat=[(180.0 - 1e-9, 0.0), (0.0, 0.0)])  # node 0 on the dateline
+    sc = F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0)
+    assert sc.dead_node[0] and not sc.dead_node[1]
