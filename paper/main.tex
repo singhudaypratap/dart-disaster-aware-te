@@ -5,7 +5,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\usepackage{booktabs,multirow}
+\usepackage{booktabs,multirow,array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage[hidelinks]{hyperref}
@@ -75,27 +76,27 @@ Geographically correlated failures were modelled as circles and line segments in
 \paragraph{Quantum optimisation for routing}
 Near-term quantum algorithms have been applied to multi-objective routing \cite{chiew24,bouchmal25}, to routing and wavelength assignment with shared-risk avoidance \cite{davies25}, and to latency-resilient routing under dual-link failures on a five-node example \cite{harb26}. These studies demonstrate formulations at small scale. We did not use quantum hardware, because the tunnel-selection and recovery problems at our scale are solved exactly by classical linear programming.
 
-Table~\ref{tab:related} summarises how the closest lines of work differ from this study. The distinguishing combination is the use of real hazard footprints both for choosing tunnels and for a time-separated test.
+Table~\ref{tab:related} summarises how the closest lines of work differ from this study in three respects: whether the method decides the tunnel set, how correlated failures are modelled, and whether real hazard footprints define the failures. The table shows differences in scope, not shortcomings, since most of these studies pursue other goals. What this study adds to the real-footprint approach of \cite{alenazi23} is a design that tests whether the hazard record carries over to disasters not yet seen: tunnels are chosen from events before 2018 and evaluated on later events (Section~\ref{sec:protocol}).
 
 \begin{table}[t]
 \centering
-\caption{Positioning against the closest published work. ``Real footprints'' means archived spatial records of actual hazards; ``held out by time'' means the method is evaluated on events later than those it used.}
+\caption{Positioning against the closest published work. ``Real hazard footprints'' means archived spatial records of actual hazards used to define which elements fail.}
 \label{tab:related}
 \small
-\resizebox{\linewidth}{!}{\begin{tabular}{p{4.6cm}p{2.2cm}p{2.4cm}p{2.2cm}p{2.0cm}}
+\resizebox{\linewidth}{!}{\begin{tabular}{L{5.0cm}L{2.6cm}L{3.8cm}L{2.8cm}}
 \toprule
-Work & Decides tunnel set & Correlated failures & Real hazard footprints & Held out by time \\
+Work & Decides tunnel set & Correlated failures & Real hazard footprints \\
 \midrule
-FFC \cite{ffc14} & no & $k$ arbitrary & no & -- \\
-TeaVaR \cite{teavar19} & no & empirical failure model & no & -- \\
-PreTE \cite{prete25} & tunnels updated & fibre degradation & optical telemetry & -- \\
-AEGIS \cite{aegis26} & no tunnels & SRLG events, independent, given probabilities & no & -- \\
-Learned TE \cite{dote23,teal23,harp24,geminet26,pathgnn25} & no & random single or multiple & no & -- \\
-Geodiverse protection \cite{giraosilva20} & yes & shared-risk groups & no & -- \\
-Geographic failure models \cite{neumayer11,agarwal13} & analysis & geometric & no & -- \\
-Hurricane evaluation \cite{alenazi23} & no (assessment) & buffer around track & yes (2 events) & -- \\
-Seismic reliability \cite{jimenez23} & no (assessment) & seismic hazard model & no & -- \\
-This work (DART) & yes & from archives & yes & yes \\
+FFC \cite{ffc14} & no & $k$ arbitrary & no \\
+TeaVaR \cite{teavar19} & no & empirical failure model & no \\
+PreTE \cite{prete25} & tunnels updated & fibre degradation & optical telemetry \\
+AEGIS \cite{aegis26} & no tunnels & SRLG events, independent, given probabilities & no \\
+Learned TE \cite{dote23,teal23,harp24,geminet26,pathgnn25} & no & random single or multiple & no \\
+Geodiverse protection \cite{giraosilva20} & yes & shared-risk groups & no \\
+Geographic failure models \cite{neumayer11,agarwal13} & analysis & geometric & no \\
+Hurricane evaluation \cite{alenazi23} & no (assessment) & buffer around track & yes (2 events) \\
+Seismic reliability \cite{jimenez23} & no (assessment) & seismic hazard model & no \\
+This work (DART) & yes & from archives & yes \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -197,11 +198,11 @@ The cost of the rule is dominated by evaluating survival of $|C_{st}|$ candidate
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/fig1_pipeline.pdf}
-\caption{DART. Offline, training failure scenarios from real events before 2018 and random disks decide whether the last of the $k$ tunnels of each pair should differ from the classical edge-disjoint choice. Online, the controller drops failed tunnels and re-solves split ratios with the linear program of Eqs.~(\ref{eq:lp})--(\ref{eq:lp-cap}).}
+\caption{DART. Left, offline: training failure scenarios from real events before 2018 and random disks decide whether the last of the $k$ tunnels of each pair should differ from the classical choice. Right, online: after a disaster the controller drops the failed tunnels and re-solves the split ratios with the linear program of Eqs.~(\ref{eq:lp})--(\ref{eq:lp-cap}).}
 \label{fig:pipeline}
 \end{figure}
 
-The upper row of Fig.~\ref{fig:pipeline} is the only place where hazard data enter. Training failure scenarios are reduced to sets of failed links, and DART uses them only to decide the last tunnel. The lower row is the standard re-optimisation that every compared rule uses. This separation is deliberate: any difference in the results comes from which tunnels exist, not from how traffic is split over them.
+The left column of Fig.~\ref{fig:pipeline} is the only place where hazard data enter. Training failure scenarios are reduced to sets of failed links, and DART uses them only to decide the last tunnel. The right column is the standard re-optimisation that every compared rule uses. This separation is deliberate: any difference in the results comes from which tunnels exist, not from how traffic is split over them.
 
 % =====================================================================================
 \section{Experimental setup}
@@ -325,7 +326,7 @@ Intensity VII or more from magnitude 6--7 events covers a few tens of kilometres
 Several assumptions limit what these results show. (i) Links are drawn as great-circle arcs, while real fibre follows roads, railways and coasts. Fibre-route data exist for some United States providers and have been used for hurricane assessment \cite{alenazi23}, but they were not available to us for the seven networks studied here. (ii) An element fails if it is inside a footprint, which ignores hardening and backup power; two thresholds per hazard only partly address this, and fragility curves, as used for earthquakes by Jiménez et al.\ \cite{jimenez23}, would be a more realistic damage model; that study found reliability results to depend heavily on the fragility of the infrastructure. (iii) Topology Zoo provides no capacities or traffic, so capacities and demand are modelled, at a single load level. (iv) Real events are unevenly distributed (Table~\ref{tab:data}); the pooled evidence is mostly about Asian typhoons and Atlantic hurricanes, and the 211 scenarios are not independent, which the event-level analysis addresses only partly. (v) DART was developed on two networks and tested on others, but the random-disk model, the candidate limits and the tie-breaking rules were chosen during development. (vi) We compared tunnel-selection rules under the same online recovery. We did not run probabilistic TE \cite{teavar19}, forward fault correction \cite{ffc14} or learned TE systems \cite{harp24,pathgnn25}, which address different decisions and would combine with, rather than replace, the tunnel set.
 
 \paragraph{Reproducibility}
-All code, configuration files, pre-registration records, result files and figure scripts are public (Section~\ref{sec:data}). Every number in this paper is produced by one analysis script from committed result files.
+All code, configuration files, pre-registration records, result files and figure scripts are public (see the Data and code availability statement). Every number in this paper is produced by one analysis script from committed result files. The computations are CPU-bound (linear programs solved with HiGHS) and the code does not use a GPU. The pre-registered tests were first executed in a cloud sandbox with four CPU cores. The authors then reproduced the test suite and regenerated every table and statistic of this paper from the committed result files on a workstation with an NVIDIA Quadro RTX 8000 GPU, using 32 worker processes.
 
 % =====================================================================================
 \section{Conclusion}
@@ -345,7 +346,7 @@ We asked whether the record of past cyclones and earthquakes can improve the cho
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 \section*{Declaration of generative AI use}
-During the preparation of this work the authors used Claude (Anthropic) to develop the simulation and analysis code, run the experiments and draft the text. After using this tool, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article.
+During the preparation of this work the authors used Claude (Anthropic) to develop the simulation and analysis code, to execute part of the experiments in a sandboxed environment and to draft the text. The authors directed the study, and after using this tool they reviewed and edited the content as needed, reproduced the reported tables and statistics on their own workstation (see Reproducibility in Section~\ref{sec:discussion}), and take full responsibility for the content of the published article.
 
 \section*{Funding}
 This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors. Computing resources were provided by Poornima Institute of Engineering and Technology, Jaipur.

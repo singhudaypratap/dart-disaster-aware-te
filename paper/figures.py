@@ -31,6 +31,8 @@ plt.rcParams.update({
     "axes.titlesize": 12, "axes.edgecolor": "black", "axes.linewidth": 0.8, "lines.color": "black",
     "pdf.fonttype": 42, "ps.fonttype": 42, "savefig.bbox": "tight", "savefig.pad_inches": 0.03,
     "hatch.linewidth": 0.6,
+    "mathtext.fontset": "custom", "mathtext.rm": "Liberation Sans", "mathtext.it": "Liberation Sans:italic",
+    "mathtext.bf": "Liberation Sans:bold",
 })
 OUT = "paper/figs"
 os.makedirs(OUT, exist_ok=True)
@@ -62,31 +64,43 @@ def save(fig, name):
 
 # ------------------------------------------------------------------ Fig. 1: method pipeline
 def fig_pipeline():
-    fig, ax = plt.subplots(figsize=(W, 11 * CM))
-    ax.set_xlim(0, 16); ax.set_ylim(0, 11); ax.axis("off")
+    """Two columns: offline planning (left), online recovery (right). The single link between
+    them is the tunnel set, drawn as one horizontal arrow."""
+    fig, ax = plt.subplots(figsize=(W, 11.5 * CM))
+    ax.set_xlim(0, 16); ax.set_ylim(0, 11.6); ax.axis("off")
+    bw, bh = 6.4, 2.2                       # box width / height (axes units = cm)
+    xl, xr = 0.1, 9.5                       # left / right column x
+    ys = [8.2, 5.5, 2.8, 0.1]               # bottoms of rows 1-4
 
-    def box(x, y, w, h, text, fill="white", bold=False):
-        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.05,rounding_size=0.15",
+    def box(x, y, text, fill="white"):
+        ax.add_patch(FancyBboxPatch((x, y), bw, bh, boxstyle="round,pad=0.04,rounding_size=0.15",
                                     fc=fill, ec="black", lw=1.0))
-        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=12,
-                fontweight="bold" if bold else "normal", linespacing=1.15)
+        ax.text(x + bw / 2, y + bh / 2, text, ha="center", va="center", fontsize=12, linespacing=1.2)
 
-    def arrow(x0, y0, x1, y1):
-        ax.annotate("", xy=(x1, y1), xytext=(x0, y0), arrowprops=dict(arrowstyle="-|>", color="black", lw=1.0))
+    def down(x, y_from, y_to):
+        ax.annotate("", xy=(x, y_to), xytext=(x, y_from),
+                    arrowprops=dict(arrowstyle="-|>", color="black", lw=1.0, shrinkA=0, shrinkB=0))
 
-    ax.text(0.1, 10.5, "Offline (planning)", fontsize=12, fontweight="bold")
-    box(0.1, 6.3, 4.7, 3.6, "Training\nfailure\nscenarios\n(real events\nbefore 2018 +\nrandom disks)")
-    box(5.65, 6.3, 4.7, 3.6, "Backbone:\nk$-$1 link-\ndisjoint\nshortest paths")
-    box(11.2, 6.3, 4.7, 3.6, "Last path:\nreplace only\nif it survives\nmore training\nscenarios", fill="0.88")
-    arrow(4.8, 8.1, 5.65, 8.1); arrow(10.35, 8.1, 11.2, 8.1)
-    ax.plot([0.1, 15.9], [5.45, 5.45], color="black", lw=0.8, ls="--")
-    ax.text(0.1, 4.75, "Online (after a disaster)", fontsize=12, fontweight="bold")
-    box(0.1, 0.3, 4.7, 3.6, "Observed\nfailed links\nand nodes")
-    box(5.65, 0.3, 4.7, 3.6, "Drop failed\npaths from\neach pair's\nk paths")
-    box(11.2, 0.3, 4.7, 3.6, "Re-solve\nsplit ratios\n(min-MLU LP)\nover survivors")
-    arrow(4.8, 2.1, 5.65, 2.1); arrow(10.35, 2.1, 11.2, 2.1)
-    arrow(13.55, 6.3, 8.0, 3.9)
-    ax.text(11.6, 4.75, "k paths per pair", fontsize=12, ha="left")
+    ax.text(xl + bw / 2, 11.25, "Offline (planning)", ha="center", fontsize=12, fontweight="bold")
+    ax.text(xr + bw / 2, 11.25, "Online (after a disaster)", ha="center", fontsize=12, fontweight="bold")
+
+    box(xl, ys[0], "Training scenarios:\nreal events before 2018\nand random disks")
+    box(xl, ys[1], "Backbone: $k-1$ link-\ndisjoint shortest paths\nper demand pair")
+    box(xl, ys[2], "Last tunnel: replaced\nonly if it survives more\ntraining scenarios", fill="0.88")
+    for r in range(2):
+        down(xl + bw / 2, ys[r], ys[r + 1] + bh)
+
+    box(xr, ys[0], "Disaster strikes")
+    box(xr, ys[1], "Failed links and nodes\nare observed")
+    box(xr, ys[2], "Drop the failed tunnels\nof each demand pair")
+    box(xr, ys[3], "Re-solve split ratios\n(min-MLU linear program)\nover surviving tunnels")
+    for r in range(3):
+        down(xr + bw / 2, ys[r], ys[r + 1] + bh)
+
+    yc = ys[2] + bh / 2                      # horizontal link: tunnel set -> online drop step
+    ax.annotate("", xy=(xr, yc), xytext=(xl + bw, yc),
+                arrowprops=dict(arrowstyle="-|>", color="black", lw=1.0, shrinkA=0, shrinkB=0))
+    ax.text((xl + bw + xr) / 2, yc + 0.18, "$k$ tunnels\nper pair", ha="center", va="bottom", fontsize=12)
     save(fig, "fig1_pipeline")
 
 
