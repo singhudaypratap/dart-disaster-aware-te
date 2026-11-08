@@ -77,6 +77,12 @@ def main():
     step, hc = cfg["link_step_km"], cfg["hurricanes"]
     storms = F.parse_hurdat2(open(os.path.join(cfg["data_dir"], hc["hurdat2_file"])).read())
     assert not set(hc["train"]) & set(hc["test"]), "train/test storm overlap"
+    grids = {}
+    if cfg.get("earthquakes"):
+        eqc = cfg["earthquakes"]
+        assert not set(eqc["train"]) & set(eqc["test"]), "train/test earthquake overlap"
+        for e in eqc["train"] + eqc["test"]:
+            grids[e] = F.parse_shakemap_grid(open(os.path.join(cfg["data_dir"], f"events/shakemap_{e}.xml")).read())
 
     ss = np.random.SeedSequence(cfg["run"]["seed"]).spawn(len(cfg["topologies"]))
     all_rows, sel_info = [], []
@@ -89,13 +95,19 @@ def main():
         tr_d = [x for r in dk["radii_km"] for x in F.random_disk_scenarios(
             topo, r, dk["n_per_radius_train"], dk["margin_deg"], step, rng_train, True, dk["max_tries"])]
         tr_c = [x for k in cfg["cuts"]["train_k"] for x in F.all_link_cuts(topo, k)]
+        eq = cfg.get("earthquakes")   # optional block; absent in the pilot/dev configs
+        quake = lambda ids: nonempty([F.shakemap_scenario(topo, grids[e], thr, step)
+                                      for e in ids for thr in eq["mmi_thresholds"]]) if eq else []
+        tr_h = tr_h + quake(eq["train"] if eq else [])
         te_h = nonempty(hurricane_scen(topo, storms, hc["test"], hc["wind_kt"], hc["interp_hours"], step))
         te_d = [x for r in dk["radii_km"] for x in F.random_disk_scenarios(
             topo, r, dk["n_per_radius_test"], dk["margin_deg"], step, rng_test, True, dk["max_tries"])]
         te_d = [F.Scenario("test_" + x.scenario_id, x.kind, x.dead_node, x.dead_link, x.meta) for x in te_d]
         te_c = [x for k in cfg["cuts"]["test_k"][topo.name] for x in F.all_link_cuts(topo, k)]
+        te_h = te_h + quake(eq["test"] if eq else [])
 
-        fam = lambda x: {"hurricane": "hurricane", "disk": "disk", "adversarial_links": "cut"}[x.kind]
+        fam = lambda x: {"hurricane": "hurricane", "shakemap": "earthquake", "disk": "disk",
+                         "adversarial_links": "cut"}[x.kind]
         cands = pathsel.candidate_paths(topo, cfg["candidates"]["n_candidates"], cfg["candidates"]["max_stretch_km"])
         k = cfg["k"]
         ksp4 = pathsel.select_ksp_hops(topo, k)
@@ -129,6 +141,8 @@ def main():
         if "dart_v2_adv_k4" in cfg["extra_rules"]:
             rules["dart_v2_adv_k4"] = pathsel.select_dart_v2(topo, k, cands, *stack(topo, adv),
                                                              family_weights(adv, fam, cfg["family_weights"]))
+        if cfg.get("evaluate_rules"):
+            rules = {r: rules[r] for r in cfg["evaluate_rules"]}
         for r, P in rules.items():
             assert set(P) == set(ksp4), r
             sel_info.append({"topology": topo.name, "rule": r,
@@ -147,13 +161,16 @@ def main():
     df.to_json(os.path.join(a.out, "pilot_rows.jsonl"), orient="records", lines=True)
     sel = pd.DataFrame(sel_info)
     sel.to_csv(os.path.join(a.out, "path_sets.csv"), index=False)
-    df["family"] = df["kind"].map({"hurricane": "natural", "disk": "natural", "adversarial_links": "cut"})
+    df["family"] = df["kind"].map({"hurricane": "natural", "shakemap": "natural", "disk": "natural",
+                                   "adversarial_links": "cut"})
 
     # ---- pre-registered evaluation
     lines, verdict, pvals = [], {}, []
     for topo, g in df.groupby("topology"):
         nat = g[g.family == "natural"]
-        st = nat.groupby("rule")["lost_routing_frac"].agg(mean="mean", p95=lambda x: x.quantile(0.95), worst="max")
+        cvar = lambda x: np.sort(x.values)[-max(1, int(np.ceil(0.05 * len(x)))):].mean()
+        st = nat.groupby("rule")["lost_routing_frac"].agg(mean="mean", p95=lambda x: x.quantile(0.95),
+                                                          cvar95=cvar, worst="max")
         st["mlu_ratio_mean"] = nat.groupby("rule")["mlu_ratio"].mean()
         cut = g[g.family == "cut"].groupby("rule")["lost_routing_frac"].agg(cut_p95=lambda x: x.quantile(0.95), cut_worst="max")
         st = st.join(cut).join(sel[sel.topology == topo].set_index("rule")[["no_failure_mlu", "mean_hops"]])
@@ -161,7 +178,11 @@ def main():
                      + st.round(4).to_string())
         best_p95, best_worst = st.loc[CLASSICAL, "p95"].min(), st.loc[CLASSICAL, "worst"].min()
         nf_ok = st.loc[TARGET, "no_failure_mlu"] <= 1.05 * st.loc["ksp_hops_k4", "no_failure_mlu"]
-        verdict[topo] = bool(st.loc[TARGET, "p95"] < best_p95 and st.loc[TARGET, "worst"] < best_worst and nf_ok)
+        if cfg.get("criterion", "pilot") == "pilot":
+            verdict[topo] = bool(st.loc[TARGET, "p95"] < best_p95 and st.loc[TARGET, "worst"] < best_worst and nf_ok)
+        else:  # "final_v4": see config/test_dart_v4.yaml (sig. part applied after Holm below)
+            verdict[topo] = bool(st.loc[TARGET, "cvar95"] < st.loc[CLASSICAL, "cvar95"].min()
+                                 and st.loc[TARGET, "mean"] < st.loc[CLASSICAL, "mean"].min() and nf_ok)
         piv = nat.pivot_table(index="scenario_id", columns="rule", values="lost_routing_frac")
         for r in CLASSICAL:
             d = piv[TARGET] - piv[r]
@@ -175,6 +196,10 @@ def main():
     lines.append(f"{'topology':10s} {'vs rule':18s} {'median d':>9s} {'mean d':>9s} {'target better':>11s} {'target worse':>10s} {'p_holm':>8s}")
     for (t, r, med, mean, nb, nw, _), pa in zip(pvals, adj):
         lines.append(f"{t:10s} {r:18s} {med:9.4f} {mean:9.4f} {nb:11d} {nw:10d} {pa:8.2g}")
+    if cfg.get("criterion", "pilot") == "final_v4":
+        for (t, r, med, mean, nb, nw, _), pa in zip(pvals, adj):
+            if not (pa < 0.05 and mean < 0):
+                verdict[t] = False
     lines.append(f"\nPRE-REGISTERED CRITERION MET: {verdict}  -> overall {'PASS' if all(verdict.values()) else 'FAIL'}")
     txt = "\n".join(lines)
     print(txt)
