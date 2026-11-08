@@ -2,7 +2,7 @@
 
 Code, data pipeline, pre-registration records and manuscript for
 
-> U. P. Singh and B. Kumari, *Choosing backup paths from hazard history: disaster-aware path
+> U. P. Singh, B. Kumari and E. A. Siddiqui, *Choosing backup paths from hazard history: disaster-aware path
 > selection for traffic-engineering recovery, tested on real cyclones and earthquakes*
 > (manuscript in preparation for *Computer Networks*).
 
