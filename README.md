@@ -1,87 +1,95 @@
-# disaster-te: traffic-engineering recovery under real disasters and adversarial link cuts
+# DART: disaster-aware tunnel selection for traffic-engineering recovery
 
-Research code for the follow-up to EAAI-26-25931. It evaluates how well traffic-engineering (TE)
-recovery methods reroute traffic on **real backbone topologies** after **real historical disasters**
-(USGS ShakeMap earthquake intensity grids, NOAA HURDAT2 hurricane wind radii) and after
-**worst-case link cuts** chosen by an adversary, against the exact LP optimum.
+Code, data pipeline, pre-registration records and manuscript for
 
-Status: **phase 1 (classical baselines and the evaluation harness) is complete and validated.**
-Phase 2 adds the learned methods (proposed model, PathGNN reimplementation, rule distillation).
+> U. P. Singh and B. Kumari, *Choosing backup paths from hazard history: disaster-aware path
+> selection for traffic-engineering recovery, tested on real cyclones and earthquakes*
+> (manuscript in preparation for *Computer Networks*).
 
-## Run on the server
+**DART** (Disaster-Aware, Risk-learned Tunnel selection) chooses the `k` precomputed tunnels per
+demand pair that a traffic-engineering controller can use after a failure. It keeps `k-1`
+link-disjoint tunnels and replaces the last one only when real past hazard footprints show that the
+replacement would have survived more disasters (`dte/pathsel.py: select_dart_v4`). After a disaster,
+split ratios are re-solved over the surviving tunnels with a min-MLU linear program (`dte/te.py`).
 
-```bash
-git clone -b claude/awesome-gauss-9xxnge https://github.com/singhudaypratap/nipa-book-chapter.git
-cd nipa-book-chapter/disaster-te
-bash scripts/run_server.sh config/experiment.yaml 32      # 32 = parallel worker processes
-```
+## Main results (held-out tests, criteria committed before each test)
 
-The script creates a virtualenv with pinned versions, runs the validation tests, downloads and
-checksums every input, runs all jobs in parallel and writes `results/<run>/summary.csv`.
-Phase 1 on Abilene: 4,182 jobs x 5 methods, about 20 s on 4 cores.
+| Test | Data | DART mean routable loss | Best classical rule (mean) |
+|---|---|---|---|
+| 1: unseen networks | 800 random disks x 3 networks (AttMpls, BtNorthAmerica, GEANT) | 0.32-0.48 % | 0.43-0.92 % |
+| 2: real events | 211 cyclone/earthquake footprints, 2018-2025, 7 networks | 0.16 % | 0.30 % (edge-disjoint) |
 
-### Background runs with nohup, several configs in parallel
+In Test 2 DART and the edge-disjoint rule tied in 162 events; DART lost less in 47 and more in 2
+(Holm-corrected Wilcoxon p = 8.6e-8). The absolute gains are small: endpoints isolated or destroyed
+by the disaster account for a mean loss of 12.4 % that no routing can recover, and real earthquakes
+broke too few backbone links to separate any rule. The first version of the method **failed** its
+pilot; the full development history is in `reports/` and Supplementary Section S1.
 
-```bash
-bash scripts/setup_server.sh config/paths_k4.yaml config/paths_k8.yaml        # once, and after each git pull
-bash scripts/launch_nohup.sh 32 config/paths_k4.yaml config/paths_k8.yaml     # 32 workers split across configs
-tail -f logs/*.log                                                            # watch; safe to log out
-```
+## Real data used
 
-Each config needs a distinct `run.name`; each writes its own `results/<run.name>_<time>/` and
-`logs/<config>_<time>.log`, which ends with `FINISHED <run dir>` on success. PIDs are in
-`logs/pids_<time>.txt` for stopping runs.
-
-## What is real and what is assumed
-
-| Input | Source | Real / assumed |
+| Source | What | Where in code |
 |---|---|---|
-| Abilene topology, capacities, coordinates | SNDlib `abilene.xml` (pinned mirror + sha256) | real |
-| Demand matrix | Yin Zhang Abilene TM as packaged by SNDlib (scaled peak, 2004) | real pattern; absolute level rescaled (see below) |
-| Earthquakes | USGS ShakeMap `grid.xml`, events listed in config | real recorded/estimated shaking |
-| Hurricanes | NOAA HURDAT2 best track + wind radii, storms listed in config | real |
-| Damage rule | node/link fails if inside footprint (MMI >= threshold; inside wind radius) | **assumption**, swept (MMI 7/8; 34/64 kt) |
-| Link geometry | great-circle arc between endpoints | **assumption** (real fibre follows roads/rail) |
-| Demand level | rescaled so optimal no-failure MLU = 0.4 / 0.6 / 0.8 | **assumption**, swept |
-| Adversary | all k-link cuts enumerated, k = 1..3 | exact worst case for each method |
+| Internet Topology Zoo via TopoHub; SNDlib | real backbone topologies with coordinates | `dte/data.py` |
+| USGS ComCat / ShakeMap `grid.xml` | earthquake intensity footprints | `dte/events.py`, `dte/failures.py` |
+| NOAA HURDAT2 | Atlantic hurricane tracks and wind radii | `dte/failures.py` |
+| NCEI IBTrACS v04r01 (WP) | western Pacific typhoon tracks and wind radii | `dte/events.py` |
 
-## Methods (phase 1)
+Assumptions (uniform capacities and gravity demand on Topology Zoo networks, great-circle links,
+"inside footprint = failed") are listed in the paper's limitations and swept where possible.
 
-* `optimal` -- exact min-MLU over all fractional routings (edge LP). Lower bound for everything.
-* `te_resolve_kpaths` -- controller re-solves split ratios over the surviving k precomputed paths.
-* `local_rescale` -- pre-failure splits renormalised over surviving paths (equal split over
-  surviving backups if all used paths failed); no controller computation.
-* `ospf_ecmp` -- OSPF re-convergence, inverse-capacity weights, hop-by-hop ECMP.
-* `no_recovery` -- traffic on failed paths is dropped.
+## Reproduce
 
-## Metrics: always read them together
+Python 3.12+. One-time setup (virtualenv, validation tests, data download with checksums):
 
-* `mlu_ratio_to_optimal` -- method MLU / optimal MLU on the same scenario.
-* `lost_routing_frac` -- demand that was routable but the method dropped.
-* `lost_unservable_frac` -- demand no routing can carry (dead endpoint or disconnected); equal for all methods.
+```bash
+bash scripts/setup_server.sh config/stage2_real_disasters.yaml config/test_real_events.yaml
+```
 
-A method that drops traffic carries less and can show MLU *below* optimal (e.g. `no_recovery`).
-MLU must never be reported without `lost_routing_frac`.
+Test 1 (unseen networks):
 
-## Statistical analysis plan (fixed before phase-2 results exist)
+```bash
+.venv/bin/python -m dte.pilot --config config/test_dart_v4.yaml --workers 32 --out results/t1
+```
 
-* Unit of analysis: scenario (paired across methods: every method sees the same scenarios).
-* Primary comparison: proposed method vs `te_resolve_kpaths` and vs PathGNN, per topology x load x
-  scenario family, on `mlu_ratio_to_optimal` and `lost_routing_frac`.
-* Test: two-sided Wilcoxon signed-rank (paired, non-normal ratios); Holm correction across all
-  primary comparisons; effect size = median paired difference with 95% bootstrap CI.
-* Adversarial families are reported as worst case (max over cuts), not tested.
-* Real-event families have few scenarios (n = 1..10); they are reported per event, not tested.
+Test 2 (real events), event selection then evaluation:
+
+```bash
+.venv/bin/python -m dte.realtest build --config config/test_real_events.yaml --out results/t2
+```
+
+```bash
+.venv/bin/python -m dte.realtest evaluate --config config/test_real_events.yaml --out results/t2 --workers 32
+```
+
+Paper numbers, tables and figures (from the committed data in `paper/data/`):
+
+```bash
+PYTHONPATH=. .venv/bin/python paper/analysis.py && PYTHONPATH=. .venv/bin/python paper/supp_tables.py && PYTHONPATH=. .venv/bin/python paper/figures.py
+```
+
+Long runs in the background, several configs in parallel:
+
+```bash
+bash scripts/launch_nohup.sh 32 config/paths_k4.yaml config/paths_k8.yaml
+```
 
 ## Layout
 
 ```
-config/experiment.yaml   every experimental parameter (no defaults in code)
-dte/data.py              SNDlib loader (fails loudly on missing capacities/units)
-dte/te.py                edge LP, path LP, ECMP, recovery evaluation
-dte/failures.py          ShakeMap / HURDAT2 / disk / k-cut scenarios
-dte/fetch.py             downloads + checksums -> data/raw/MANIFEST.json
-dte/run.py               parallel runner + provenance manifest
-dte/aggregate.py         summary tables with bootstrap CIs
-tests/                   validation against hand-computed answers
+dte/            implementation (data loading, LP recovery, footprints, DART, runners)
+config/         every experimental parameter; pre-registered test configs
+tests/          validation against hand-computed answers (pytest)
+reports/        verbatim pilot, development and test reports (including the failed pilot)
+paper/          manuscript (main.tex/pdf), supplementary, figures, tables, analysis scripts, data
+CLAUDE.md       manuscript-writing rules used for this paper
 ```
+
+## Pre-registration trail
+
+The development history, criteria and outcomes were first committed in
+`singhudaypratap/nipa-book-chapter` (branch `claude/awesome-gauss-9xxnge`, directory `disaster-te`);
+commit identifiers in Supplementary Table S2 refer to that repository.
+
+## License
+
+Apache License 2.0 (see `LICENSE`).
