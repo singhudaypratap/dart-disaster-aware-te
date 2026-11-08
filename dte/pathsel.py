@@ -131,3 +131,49 @@ def select_dart_opt(topo, k, cands, train_dead_arc: np.ndarray, train_dead_node:
             covered |= alive[:, c]
         out[(s, t)] = [C[c] for c in chosen]
     return out
+
+
+def _shortest_disjoint_from(topo, s, t, avoid_links):
+    """Shortest-hop s-t path avoiding the given undirected links, as arc ids; None if none."""
+    arcs, _, _ = topo.arcs()
+    ids = {a: i for i, a in enumerate(arcs)}
+    G = nx.Graph()
+    G.add_edges_from(l for l in topo.links if l not in avoid_links)
+    if s not in G or t not in G or not nx.has_path(G, s, t):
+        return None
+    nodes = nx.shortest_path(G, s, t)
+    return [ids[(nodes[i], nodes[i + 1])] for i in range(len(nodes) - 1)]
+
+
+def select_dart_v2(topo, k, cands, train_dead_arc, train_dead_node, train_weight):
+    """DART v2 (development version; see reports/ for its history).
+      1. primary path = shortest by hops (as every rule);
+      2. second path = shortest link-disjoint path (structural protection against ANY single
+         failure on the primary, not only the training footprints);
+      3. remaining k-2 paths: greedy weighted coverage of training failure scenarios not yet
+         survived, ties broken by fewest links shared with already chosen paths, then hops.
+    Candidate pool = cands[pair] plus the link-disjoint path of step 2."""
+    _, _, link_of_arc = topo.arcs()
+    assert train_dead_arc.shape[0] == train_dead_node.shape[0] == train_weight.shape[0]
+    out = {}
+    for (s, t), C in cands.items():
+        C = list(C)
+        chosen = [0]
+        d = _shortest_disjoint_from(topo, s, t, {topo.links[link_of_arc[a]] for a in C[0]})
+        if d is not None:
+            if d not in C:
+                C.append(d)
+            chosen.append(C.index(d))
+        alive = np.stack([~train_dead_arc[:, p].any(axis=1) for p in C], axis=1)
+        rel = ~(train_dead_node[:, s] | train_dead_node[:, t])
+        w = train_weight * rel
+        covered = alive[:, chosen].any(axis=1)
+        while len(chosen) < min(k, len(C)):
+            used_links = {link_of_arc[a] for c in chosen for a in C[c]}
+            gain = ((alive & ~covered[:, None]) * w[:, None]).sum(axis=0)
+            key = lambda c: (-gain[c], len({link_of_arc[a] for a in C[c]} & used_links), len(C[c]), c)
+            c = min((c for c in range(len(C)) if c not in chosen), key=key)
+            chosen.append(c)
+            covered |= alive[:, c]
+        out[(s, t)] = [C[c] for c in chosen]
+    return out

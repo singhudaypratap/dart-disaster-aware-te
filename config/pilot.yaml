@@ -29,6 +29,9 @@ topologies:
     uniform_capacity_mbps: 10000.0
     demand_model: gravity_degree
 
+judged_rule: dart_nat_k4
+extra_rules: []
+
 target_optimal_mlu: 0.6
 k: 4
 k_reference: 8                  # ksp_hops with 8 paths, reported for context only
