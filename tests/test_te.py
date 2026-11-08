@@ -149,3 +149,11 @@ def test_drop_rows_does_not_bridge_long_gaps():
     assert not sc.dead_node[0]
     with pytest.raises(ValueError):
         F.hurricane_scenario(T, "X", storm, 34, 1.0, 10.0, missing_radii="error", max_gap_hours=None)
+
+
+def test_split_rounding_noise_is_not_reported_as_loss():
+    T = diamond()
+    P = te.k_shortest_paths(T, 10, "hops")
+    noisy = {(0, 3): np.array([0.5, 0.5 - 1e-15])}       # sums to 1 - 1e-15
+    o = te.evaluate_splits(T, T.demand_mbps, P, noisy, *_alive(T))
+    assert o.lost_routing_mbps == 0.0

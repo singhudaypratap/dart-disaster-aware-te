@@ -208,8 +208,14 @@ def evaluate_splits(topo, D, paths, splits, dead_arc, dead_node, renormalise=Fal
             x = np.where(alive, x / tot, 0.0) if tot > 1e-12 else alive / alive.sum()
         else:
             x = np.where(alive, x, 0.0)
-        lost_routing += D[s, t] * (1.0 - x.sum())
-        carried += D[s, t] * x.sum()
+        # LP split ratios sum to 1 only up to solver tolerance (~1e-16); treat |1 - sum| < 1e-9 as
+        # exactly 1 so that rounding noise is not reported as lost traffic (found during
+        # manuscript preparation; real losses observed are >= 3e-4 of demand).
+        xs = x.sum()
+        if abs(1.0 - xs) < 1e-9:
+            xs = 1.0
+        lost_routing += D[s, t] * (1.0 - xs)
+        carried += D[s, t] * xs
         for pi, p in enumerate(paths[(s, t)]):
             if x[pi] > 0:
                 load[p] += D[s, t] * x[pi]

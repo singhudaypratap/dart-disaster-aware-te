@@ -1,0 +1,13 @@
+\begin{tabular}{lrrrrlrrr}
+\toprule
+ & \multicolumn{4}{c}{Routable loss (\% of demand)} & \multicolumn{4}{c}{DART minus rule (paired)} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+Rule ($k=4$ unless stated) & Mean & P95 & CVaR$_{0.95}$ & Worst & Mean diff. [95\% CI] & B/W/T & $p_{\mathrm{Holm}}$ & $r_{\mathrm{rb}}$ \\
+\midrule
+Shortest paths & 0.63 & 4.17 & 6.07 & 15.78 & -0.47 [-0.63, -0.32] & 67/1/143 & $1.0\times10^{-11}$ & 0.97 \\
+Geo-diverse & 0.53 & 4.11 & 6.74 & 13.26 & -0.37 [-0.57, -0.20] & 41/6/164 & $1.7\times10^{-6}$ & 0.80 \\
+Edge-disjoint & 0.30 & 1.98 & 3.61 & 8.32 & -0.13 [-0.20, -0.08] & 47/2/162 & $8.6\times10^{-8}$ & 0.90 \\
+Shortest paths, $k=8$ & 0.21 & 1.14 & 3.24 & 12.56 & -- & -- & -- & -- \\
+DART & 0.16 & 1.05 & 2.86 & 8.16 & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
